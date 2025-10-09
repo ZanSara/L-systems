@@ -56,7 +56,8 @@
         </div>
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
         <div class='controls'>
-          <a href="#" class='randomize-button' @click.prevent='randomize'>⟳ Randomize</a>
+          <a href="#" class='album-button' @click.prevent='pickFromAlbum'>♫ Pick from Album</a>
+          <a href="#" class='randomize-button' @click.prevent='trueRandomize'>⚄ True Randomize</a>
         </div>
 </div>
       </div>
@@ -95,8 +96,11 @@ export default {
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;
     },
-    randomize() {
+    pickFromAlbum() {
       this.codeEditorModel.randomize();
+    },
+    trueRandomize() {
+      this.codeEditorModel.trueRandomize();
     }
   }
 
@@ -351,28 +355,30 @@ help-background = #0d1b2e;
   padding: 16px;
   margin-top: 8px;
   border-top: 2px solid blueprint-border;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
+  a.album-button,
   a.randomize-button {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     padding: 14px 24px;
-    background: linear-gradient(135deg, blueprint-accent 0%, #2d5fa8 100%);
     color: white;
     text-decoration: none;
     border: 2px solid blueprint-bright;
     border-radius: 4px;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 12px rgba(58, 123, 213, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
     &:hover {
-      background: linear-gradient(135deg, blueprint-bright 0%, blueprint-accent 100%);
       border-color: primary-text;
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(58, 123, 213, 0.5),
@@ -383,6 +389,23 @@ help-background = #0d1b2e;
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(58, 123, 213, 0.4),
                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  a.album-button {
+    background: linear-gradient(135deg, #6b4c9a 0%, #9b59b6 100%);
+    border-color: #b884d4;
+
+    &:hover {
+      background: linear-gradient(135deg, #9b59b6 0%, #6b4c9a 100%);
+    }
+  }
+
+  a.randomize-button {
+    background: linear-gradient(135deg, blueprint-accent 0%, #2d5fa8 100%);
+
+    &:hover {
+      background: linear-gradient(135deg, blueprint-bright 0%, blueprint-accent 100%);
     }
   }
 }

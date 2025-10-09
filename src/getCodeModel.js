@@ -501,6 +501,7 @@ export default function getCodeModel(scene) {
     setCode,
     error: null,
     randomize,
+    trueRandomize,
     code: qs.get('code')
   }
   let lastPickedIndex = -1;
@@ -514,6 +515,24 @@ export default function getCodeModel(scene) {
     do { index = pickRandomIndex(standardCollection) } while (index === lastPickedIndex);
     lastPickedIndex = index;
     let code = standardCollection[lastPickedIndex];
+    setCode(code);
+    model.ignoreNextUpdate = true;
+    model.code = code;
+  }
+
+  function trueRandomize() {
+    let length = Math.floor(Math.random() * 5) + 5; // 5-9 characters
+    let system = getRandomSystem(length);
+    let depth = Math.floor(Math.random() * 4) + 4; // depth 4-7
+
+    let code = `axiom: X
+rules:
+  X => ${system.X}
+  Y => ${system.Y}
+
+depth: ${depth}
+angle: ${system.angle}`;
+
     setCode(code);
     model.ignoreNextUpdate = true;
     model.code = code;
