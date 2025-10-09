@@ -60,9 +60,10 @@
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
 
         <div class='controls'>
-          <a href="#" class='album-button' @click.prevent='pickFromAlbum'>♫ Pick from Album</a>
-          <a href="#" class='randomize-button' @click.prevent='trueRandomize'>⚄ True Randomize</a>
-          <a href="#" class='stop-button' @click.prevent='stopGeneration'>■ Stop Generation</a>
+          <a href="#" class='album-button' @click.prevent='pickFromAlbum'>Pick from Examples</a>
+          <a href="#" class='randomize-button' @click.prevent='trueRandomize'>Random Values</a>
+          <a href="#" class='stop-button' @click.prevent='stopGeneration'>Stop Generation</a>
+          <a href="#" class='save-button' @click.prevent='toSVGFile'>Save as SVG</a>
         </div>
 
         <div class="section examples-section">
@@ -109,7 +110,9 @@ export default {
   mounted() {
     this.scene = createScene(document.querySelector('#scene'));
     this.codeEditorModel = getCodeModel(this.scene);
-    this.examples = this.codeEditorModel.getExamples();
+    this.examples = this.codeEditorModel.getExamples().sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
 
     // Load theme preference from localStorage
     const savedTheme = localStorage.getItem('theme');
@@ -501,7 +504,8 @@ light-help-background = #dfe6ee;
 
   a.album-button,
   a.randomize-button,
-  a.stop-button {
+  a.stop-button,
+  a.save-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -555,6 +559,16 @@ light-help-background = #dfe6ee;
     &:hover {
       color: #ff6b68;
       border-color: #ff6b68;
+    }
+  }
+
+  a.save-button {
+    color: #26a69a;
+    border-color: #26a69a;
+
+    &:hover {
+      color: #4db6ac;
+      border-color: #4db6ac;
     }
   }
 }
@@ -734,6 +748,16 @@ light-help-background = #dfe6ee;
       &:hover {
         color: #b91c1c;
         border-color: #b91c1c;
+      }
+    }
+
+    a.save-button {
+      color: #0d9488;
+      border-color: #0d9488;
+
+      &:hover {
+        color: #0f766e;
+        border-color: #0f766e;
       }
     }
   }
