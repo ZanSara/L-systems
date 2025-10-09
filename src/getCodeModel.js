@@ -502,6 +502,8 @@ export default function getCodeModel(scene) {
     error: null,
     randomize,
     trueRandomize,
+    getExamples,
+    loadExample,
     code: qs.get('code')
   }
   let lastPickedIndex = -1;
@@ -518,6 +520,7 @@ export default function getCodeModel(scene) {
     setCode(code);
     model.ignoreNextUpdate = true;
     model.code = code;
+    return lastPickedIndex;
   }
 
   function trueRandomize() {
@@ -536,6 +539,25 @@ angle: ${system.angle}`;
     setCode(code);
     model.ignoreNextUpdate = true;
     model.code = code;
+  }
+
+  function getExamples() {
+    return standardCollection.map((code, index) => {
+      // Extract name from comment at the beginning
+      let match = code.match(/\/\/\s*(.+)/);
+      let name = match ? match[1].trim() : `Example ${index + 1}`;
+      return { name, code, index };
+    });
+  }
+
+  function loadExample(index) {
+    if (index >= 0 && index < standardCollection.length) {
+      lastPickedIndex = index;
+      let code = standardCollection[index];
+      setCode(code);
+      model.ignoreNextUpdate = true;
+      model.code = code;
+    }
   }
 
   function setCode(newCode) {

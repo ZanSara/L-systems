@@ -55,6 +55,28 @@
           </p>
         </div>
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
+
+        <div class="section examples-section">
+          <div class='title'>
+            Example Systems
+            <a class='toggle-examples' :class='{"examples-visible": examplesVisible}' href='#' @click.prevent='examplesVisible = !examplesVisible'>
+              {{ examplesVisible ? 'hide' : 'show' }}
+            </a>
+          </div>
+          <div v-if='examplesVisible' class='examples-list'>
+            <a
+              v-for='(example, index) in examples'
+              :key='index'
+              href='#'
+              class='example-item'
+              :class='{"active": currentExampleIndex === index}'
+              @click.prevent='loadExample(index)'
+            >
+              {{ example.name }}
+            </a>
+          </div>
+        </div>
+
         <div class='controls'>
           <a href="#" class='album-button' @click.prevent='pickFromAlbum'>♫ Pick from Album</a>
           <a href="#" class='randomize-button' @click.prevent='trueRandomize'>⚄ True Randomize</a>
@@ -79,12 +101,16 @@ export default {
     return {
       codeEditorModel: null,
       sidebarOpen: true,
-      syntaxHelpVisible: false
+      syntaxHelpVisible: false,
+      examplesVisible: false,
+      currentExampleIndex: -1,
+      examples: []
     }
   },
   mounted() {
     this.scene = createScene(document.querySelector('#scene'));
     this.codeEditorModel = getCodeModel(this.scene);
+    this.examples = this.codeEditorModel.getExamples();
   },
   beforeDestroy() {
     this.scene.dispose();
@@ -97,10 +123,16 @@ export default {
       this.sidebarOpen = !this.sidebarOpen;
     },
     pickFromAlbum() {
-      this.codeEditorModel.randomize();
+      const index = this.codeEditorModel.randomize();
+      this.currentExampleIndex = index;
     },
     trueRandomize() {
       this.codeEditorModel.trueRandomize();
+      this.currentExampleIndex = -1;
+    },
+    loadExample(index) {
+      this.currentExampleIndex = index;
+      this.codeEditorModel.loadExample(index);
     }
   }
 
@@ -349,6 +381,93 @@ help-background = #0d1b2e;
 
 .code-editor-container {
   margin: 16px 0;
+}
+
+.examples-section {
+  border-top: 2px solid blueprint-border;
+  margin-top: 16px;
+  padding-top: 0;
+
+  .title {
+    margin-bottom: 0;
+
+    a.toggle-examples {
+      background: blueprint-dark;
+      border: 1px solid blueprint-border;
+      padding: 6px 12px;
+      border-radius: 3px;
+      font-size: 11px;
+      text-transform: none;
+
+      &:hover {
+        background: blueprint-border;
+        border-color: blueprint-accent;
+      }
+
+      &.examples-visible {
+        background: blueprint-accent;
+        color: white;
+        border-color: blueprint-bright;
+      }
+    }
+  }
+
+  .examples-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: blueprint-dark;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: blueprint-accent;
+      border-radius: 3px;
+
+      &:hover {
+        background: blueprint-bright;
+      }
+    }
+
+    .example-item {
+      padding: 10px 12px;
+      background: rgba(30, 58, 95, 0.3);
+      border: 1px solid blueprint-border;
+      border-left: 3px solid blueprint-border;
+      border-radius: 3px;
+      color: blueprint-text;
+      text-decoration: none;
+      font-size: 13px;
+      transition: all 0.2s;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(30, 58, 95, 0.6);
+        border-left-color: blueprint-accent;
+        color: primary-text;
+        transform: translateX(4px);
+      }
+
+      &.active {
+        background: rgba(58, 123, 213, 0.2);
+        border-left-color: blueprint-bright;
+        color: blueprint-bright;
+        font-weight: 600;
+        box-shadow: 0 0 10px rgba(58, 123, 213, 0.3);
+      }
+    }
+  }
 }
 
 .controls {
