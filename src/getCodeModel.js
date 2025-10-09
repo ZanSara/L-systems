@@ -530,7 +530,7 @@ export default function getCodeModel(scene) {
 
     // Generate random color scheme
     let colors = getRandomColors();
-    let useColors = Math.random() > 0.3; // 70% chance of using colors
+    let useColors = true;
 
     let code = `axiom: X
 rules:
@@ -622,8 +622,7 @@ actions:
 
 function getRandomSystem(length) {
   let states = 'FXY';
-  let colorChars = 'cde'; // Color action characters
-  let useColors = Math.random() > 0.3; // 70% chance of using colors
+  let colorChars = 'cdefg'; // Color action characters
 
   let res = [];
   let lastCh = '';
@@ -648,6 +647,7 @@ function getRandomSystem(length) {
     if (x === '-') return '+';
     if (x === 'Y') return 'X';
     if (x === 'X') return 'Y';
+    // Keep color characters the same in Y
     return x;
   } ).join('')
 
@@ -664,9 +664,6 @@ function getRandomSystem(length) {
       return '+';
     } else if (r < 0.95) {
       return '-';
-    } else if (useColors) {
-      // Add color action characters
-      return colorChars[Math.floor(Math.random() * colorChars.length)];
     } else {
       return Math.random() < 0.5 ? '+' : '-';
     }

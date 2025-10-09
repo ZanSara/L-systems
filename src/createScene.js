@@ -26,6 +26,7 @@ export default function createLScene(canvas) {
     setSystem,
     saveToSVG,
     isComplete,
+    stop,
   }
 
   function saveToSVG(fileName) {
@@ -101,6 +102,11 @@ export default function createLScene(canvas) {
 
   function drawSystem(system) {
     canDrawMore |= system.frame();
+  }
+
+  function stop() {
+    cancelAnimationFrame(raf);
+    canDrawMore = false;
   }
 
   function dispose() {

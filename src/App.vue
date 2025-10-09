@@ -56,14 +56,15 @@
         </div>
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
 
+        <div class='controls'>
+          <a href="#" class='album-button' @click.prevent='pickFromAlbum'>♫ Pick from Album</a>
+          <a href="#" class='randomize-button' @click.prevent='trueRandomize'>⚄ True Randomize</a>
+          <a href="#" class='stop-button' @click.prevent='stopGeneration'>■ Stop Generation</a>
+        </div>
+
         <div class="section examples-section">
-          <div class='title'>
-            Example Systems
-            <a class='toggle-examples' :class='{"examples-visible": examplesVisible}' href='#' @click.prevent='examplesVisible = !examplesVisible'>
-              {{ examplesVisible ? 'hide' : 'show' }}
-            </a>
-          </div>
-          <div v-if='examplesVisible' class='examples-list'>
+          <div class='title'>Examples</div>
+          <div class='examples-list'>
             <a
               v-for='(example, index) in examples'
               :key='index'
@@ -75,11 +76,6 @@
               {{ example.name }}
             </a>
           </div>
-        </div>
-
-        <div class='controls'>
-          <a href="#" class='album-button' @click.prevent='pickFromAlbum'>♫ Pick from Album</a>
-          <a href="#" class='randomize-button' @click.prevent='trueRandomize'>⚄ True Randomize</a>
         </div>
 </div>
       </div>
@@ -102,7 +98,6 @@ export default {
       codeEditorModel: null,
       sidebarOpen: true,
       syntaxHelpVisible: false,
-      examplesVisible: false,
       currentExampleIndex: -1,
       examples: []
     }
@@ -133,6 +128,11 @@ export default {
     loadExample(index) {
       this.currentExampleIndex = index;
       this.codeEditorModel.loadExample(index);
+    },
+    stopGeneration() {
+      if (this.scene) {
+        this.scene.stop();
+      }
     }
   }
 
@@ -389,34 +389,13 @@ help-background = #0d1b2e;
   padding-top: 0;
 
   .title {
-    margin-bottom: 0;
-
-    a.toggle-examples {
-      background: blueprint-dark;
-      border: 1px solid blueprint-border;
-      padding: 6px 12px;
-      border-radius: 3px;
-      font-size: 11px;
-      text-transform: none;
-
-      &:hover {
-        background: blueprint-border;
-        border-color: blueprint-accent;
-      }
-
-      &.examples-visible {
-        background: blueprint-accent;
-        color: white;
-        border-color: blueprint-bright;
-      }
-    }
+    margin: 12px 0;
   }
 
   .examples-list {
     display: grid;
     grid-template-columns: 1fr;
     gap: 6px;
-    margin-top: 12px;
     max-height: 300px;
     overflow-y: auto;
     padding-right: 4px;
@@ -479,52 +458,61 @@ help-background = #0d1b2e;
   gap: 12px;
 
   a.album-button,
-  a.randomize-button {
+  a.randomize-button,
+  a.stop-button {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     padding: 14px 24px;
-    color: white;
+    background: transparent;
     text-decoration: none;
-    border: 2px solid blueprint-bright;
+    border: 2px solid;
     border-radius: 4px;
     font-size: 15px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(58, 123, 213, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
 
     &:hover {
-      border-color: primary-text;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(58, 123, 213, 0.5),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 20px currentColor;
     }
 
     &:active {
       transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(58, 123, 213, 0.4),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 10px currentColor;
     }
   }
 
   a.album-button {
-    background: linear-gradient(135deg, #6b4c9a 0%, #9b59b6 100%);
+    color: #b884d4;
     border-color: #b884d4;
 
     &:hover {
-      background: linear-gradient(135deg, #9b59b6 0%, #6b4c9a 100%);
+      color: #d4a5f0;
+      border-color: #d4a5f0;
     }
   }
 
   a.randomize-button {
-    background: linear-gradient(135deg, blueprint-accent 0%, #2d5fa8 100%);
+    color: blueprint-bright;
+    border-color: blueprint-bright;
 
     &:hover {
-      background: linear-gradient(135deg, blueprint-bright 0%, blueprint-accent 100%);
+      color: primary-text;
+      border-color: primary-text;
+    }
+  }
+
+  a.stop-button {
+    color: #ef5350;
+    border-color: #ef5350;
+
+    &:hover {
+      color: #ff6b68;
+      border-color: #ff6b68;
     }
   }
 }
