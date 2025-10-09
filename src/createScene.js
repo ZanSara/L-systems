@@ -20,6 +20,7 @@ export default function createLScene(canvas) {
   let lSystem = [];
   let disposeLater;
   let raf = requestAnimationFrame(frame);
+  let defaultColor = 0xFFFFFFFF; // white
 
   return {
     dispose,
@@ -27,6 +28,7 @@ export default function createLScene(canvas) {
     saveToSVG,
     isComplete,
     stop,
+    setTheme,
   }
 
   function saveToSVG(fileName) {
@@ -71,6 +73,10 @@ export default function createLScene(canvas) {
     lSystem = [];
     newSystem.forEach(systemSettings => {
       wantGuideToBeHidden = true;
+      // Set default color if not specified
+      if (systemSettings.color === undefined) {
+        systemSettings.color = defaultColor;
+      }
       lSystem.push(new LSystem(scene, systemSettings));
     });
 
@@ -107,6 +113,19 @@ export default function createLScene(canvas) {
   function stop() {
     cancelAnimationFrame(raf);
     canDrawMore = false;
+  }
+
+  function setTheme(isLight) {
+    if (isLight) {
+      // Light theme: white background, black lines
+      scene.setClearColor(1, 1, 1, 1);
+      defaultColor = 0x000000FF; // black
+    } else {
+      // Dark theme: black background, white lines
+      scene.setClearColor(0, 0, 0, 1);
+      defaultColor = 0xFFFFFFFF; // white
+    }
+    scene.renderFrame();
   }
 
   function dispose() {

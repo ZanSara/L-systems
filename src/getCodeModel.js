@@ -603,14 +603,13 @@ angle: ${system.angle}`;
 function getInitialCode() {
   // todo: query state?
   return `axiom: X
-rules: 
+rules:
   X => -YF+XFX+FY-
   Y => +XF-YFY-FX+
 
 depth: 5
 stepsPerFrame: 10
 width: 2
-color: #FFFFFF
 
 actions:
   - => rotate(-90)
