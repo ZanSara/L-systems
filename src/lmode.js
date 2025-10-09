@@ -31,7 +31,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       start: kw('start'),
       direction: kw('direction'),
       position: kw('position'),
-      hideGrid: kw('hideGrid'),
       rules: kw('rules'),
       depth: kw('depth'),
       stepsPerFrame: kw('stepsPerFrame'),

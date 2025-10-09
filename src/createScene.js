@@ -7,7 +7,7 @@ export default function createLScene(canvas) {
     lineColor: 0x0d3f71ff
   });
 
-  scene.setClearColor(12/255, 41/255, 82/255, 1)
+  scene.setClearColor(0, 0, 0, 1)
   let initialSceneSize = 40;
   scene.setViewBox({
     left:  -initialSceneSize,
@@ -31,7 +31,7 @@ export default function createLScene(canvas) {
   function saveToSVG(fileName) {
     let svg = toSVG(scene, {
       open() {
-        return `<!-- Generator: https://github.com/anvaka/l-system -->`;
+        return `<!-- Generator: https://github.com/ZabSara/L-system -->`;
       }
     });
     let blob = new Blob([svg], {type: "image/svg+xml"});
@@ -69,9 +69,7 @@ export default function createLScene(canvas) {
     let wantGuideToBeHidden = false;
     lSystem = [];
     newSystem.forEach(systemSettings => {
-      if (systemSettings.hideGrid) {
-        wantGuideToBeHidden = true;
-      }
+      wantGuideToBeHidden = true;
       lSystem.push(new LSystem(scene, systemSettings));
     });
 

@@ -1,10 +1,10 @@
-# L-System
+# L-Systems Explorer
 
-This website allows you to edit [L-System](https://en.wikipedia.org/wiki/L-system) and immediately see results online:
+This website allows you to edit [L-Systems](https://en.wikipedia.org/wiki/L-system) and generate random ones.
 
 ![demo](https://i.imgur.com/z8YW0YK.png)
 
-https://anvaka.github.io/lsystem
+Forked from https://anvaka.github.io/lsystem
 
 ## High level details
 
@@ -95,7 +95,6 @@ actions:
   [ => push()
   ] => pop()
 ```
-
 
 ## Local development
 
