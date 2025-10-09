@@ -29,6 +29,7 @@ jobs:
 
           shopt -s extglob
           rm -r !(dist|CNAME)
+          rm -r .github/
           
           mv dist/* .
           rm -r dist/
