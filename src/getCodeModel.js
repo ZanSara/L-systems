@@ -528,6 +528,10 @@ export default function getCodeModel(scene) {
     let system = getRandomSystem(length);
     let depth = Math.floor(Math.random() * 4) + 4; // depth 4-7
 
+    // Generate random color scheme
+    let colors = getRandomColors();
+    let useColors = Math.random() > 0.3; // 70% chance of using colors
+
     let code = `axiom: X
 rules:
   X => ${system.X}
@@ -535,6 +539,14 @@ rules:
 
 depth: ${depth}
 angle: ${system.angle}`;
+
+    if (useColors && colors.length > 0) {
+      code += '\nactions:';
+      colors.forEach((color, index) => {
+        let actionChar = String.fromCharCode(99 + index); // c, d, e, f, g...
+        code += `\n  ${actionChar} => setColor('${color}')`;
+      });
+    }
 
     setCode(code);
     model.ignoreNextUpdate = true;
@@ -610,6 +622,9 @@ actions:
 
 function getRandomSystem(length) {
   let states = 'FXY';
+  let colorChars = 'cde'; // Color action characters
+  let useColors = Math.random() > 0.3; // 70% chance of using colors
+
   let res = [];
   let lastCh = '';
   while (res.length < length) {
@@ -645,10 +660,47 @@ function getRandomSystem(length) {
     if (r < 0.78) {
       r = Math.random();
       return states[Math.floor(states.length * r)]
+    } else if (r < 0.89) {
+      return '+';
+    } else if (r < 0.95) {
+      return '-';
+    } else if (useColors) {
+      // Add color action characters
+      return colorChars[Math.floor(Math.random() * colorChars.length)];
     } else {
-      return r < 0.89 ? '+' : '-'
+      return Math.random() < 0.5 ? '+' : '-';
     }
   }
+}
+
+function getRandomColors() {
+  const colorPalettes = [
+    // Nature greens
+    ['green', 'lime', 'lightgreen', 'darkgreen'],
+    // Autumn
+    ['goldenrod', 'gold', 'orange', 'brown'],
+    // Purples
+    ['mediumpurple', 'violet', 'purple', 'orchid'],
+    // Blues
+    ['dodgerblue', 'skyblue', 'steelblue', 'navy'],
+    // Warm
+    ['coral', 'salmon', 'tomato', 'crimson'],
+    // Cool
+    ['cyan', 'turquoise', 'teal', 'aquamarine'],
+    // Mixed vibrant
+    ['red', 'blue', 'green', 'yellow'],
+    // Pastels
+    ['lightcoral', 'lightblue', 'lightgreen', 'lightyellow'],
+    // Earth tones
+    ['sienna', 'peru', 'chocolate', 'saddlebrown'],
+    // Pink/Red
+    ['hotpink', 'deeppink', 'pink', 'lightpink']
+  ];
+
+  let palette = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+  let numColors = Math.floor(Math.random() * 3) + 2; // 2-4 colors
+
+  return palette.slice(0, numColors);
 }
 
 function pickRandomIndex(arr) {
