@@ -21,6 +21,7 @@ export default function createLScene(canvas) {
   let disposeLater;
   let raf = requestAnimationFrame(frame);
   let defaultColor = 0xFFFFFFFF; // white
+  let defaultLineWidth = 2;
 
   return {
     dispose,
@@ -29,14 +30,20 @@ export default function createLScene(canvas) {
     isComplete,
     stop,
     setTheme,
+    setLineWidth,
   }
 
   function saveToSVG(fileName) {
     let svg = toSVG(scene, {
       open() {
         return `<!-- Generator: https://zansara.dev/L-system -->`;
-      }
+      },
+      scale: 5
     });
+
+    // Add non-scaling-stroke to keep line width constant regardless of scale
+    svg = svg.replace(/<path /g, '<path vector-effect="non-scaling-stroke" ');
+
     let blob = new Blob([svg], {type: "image/svg+xml"});
     let url = window.URL.createObjectURL(blob);
     // For some reason, safari doesn't like when download happens on the same
@@ -76,6 +83,10 @@ export default function createLScene(canvas) {
       // Set default color if not specified
       if (systemSettings.color === undefined) {
         systemSettings.color = defaultColor;
+      }
+      // Set default line width if not specified
+      if (systemSettings.width === undefined) {
+        systemSettings.width = defaultLineWidth;
       }
       lSystem.push(new LSystem(scene, systemSettings));
     });
@@ -127,6 +138,10 @@ export default function createLScene(canvas) {
     }
     // Force a re-render
     scene.renderFrame();
+  }
+
+  function setLineWidth(width) {
+    defaultLineWidth = width;
   }
 
   function dispose() {

@@ -59,6 +59,20 @@
         </div>
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
 
+        <div class='line-width-control'>
+          <label for='line-width'>Line Width:</label>
+          <input
+            id='line-width'
+            type='range'
+            min='0.5'
+            max='10'
+            step='0.5'
+            v-model.number='lineWidth'
+            @input='updateLineWidth'
+          />
+          <span class='width-value'>{{ lineWidth }}px</span>
+        </div>
+
         <div class='controls'>
           <a href="#" class='album-button' @click.prevent='pickFromAlbum'>Pick from Examples</a>
           <a href="#" class='randomize-button' @click.prevent='trueRandomize'>Random Values</a>
@@ -128,7 +142,8 @@ export default {
       currentExampleIndex: -1,
       examples: [],
       isLightTheme: false,
-      showSaveModal: false
+      showSaveModal: false,
+      lineWidth: 2
     }
   },
   mounted() {
@@ -238,6 +253,12 @@ export default {
         if (this.codeEditorModel && this.codeEditorModel.code) {
           this.codeEditorModel.setCode(this.codeEditorModel.code);
         }
+      }
+    },
+    updateLineWidth() {
+      if (this.scene && this.codeEditorModel && this.codeEditorModel.code) {
+        this.scene.setLineWidth(this.lineWidth);
+        this.codeEditorModel.setCode(this.codeEditorModel.code);
       }
     }
   }
@@ -509,6 +530,78 @@ light-help-background = #dfe6ee;
 
 .code-editor-container {
   margin: 16px 0;
+}
+
+.line-width-control {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 58, 95, 0.2);
+  border: 1px solid blueprint-border;
+  border-radius: 4px;
+  margin: 16px 0;
+
+  label {
+    color: blueprint-text;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+  }
+
+  input[type='range'] {
+    flex: 1;
+    height: 6px;
+    background: blueprint-border;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: blueprint-bright;
+      cursor: pointer;
+      border: 2px solid blueprint-bg;
+      box-shadow: 0 0 10px rgba(110, 181, 255, 0.5);
+      transition: all 0.2s;
+
+      &:hover {
+        background: primary-text;
+        box-shadow: 0 0 15px rgba(110, 181, 255, 0.8);
+        transform: scale(1.1);
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: blueprint-bright;
+      cursor: pointer;
+      border: 2px solid blueprint-bg;
+      box-shadow: 0 0 10px rgba(110, 181, 255, 0.5);
+      transition: all 0.2s;
+
+      &:hover {
+        background: primary-text;
+        box-shadow: 0 0 15px rgba(110, 181, 255, 0.8);
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .width-value {
+    color: blueprint-bright;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 45px;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+  }
 }
 
 .examples-section {
@@ -849,6 +942,45 @@ light-help-background = #dfe6ee;
     background: #fca5a5;
     color: #7f1d1d;
     border-left-color: #dc2626;
+  }
+
+  .line-width-control {
+    background: rgba(185, 201, 219, 0.2);
+    border-color: light-border;
+
+    label {
+      color: light-text;
+    }
+
+    input[type='range'] {
+      background: light-border;
+
+      &::-webkit-slider-thumb {
+        background: light-bright;
+        border-color: light-bg;
+        box-shadow: 0 0 10px rgba(29, 78, 216, 0.3);
+
+        &:hover {
+          background: light-accent;
+          box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+        }
+      }
+
+      &::-moz-range-thumb {
+        background: light-bright;
+        border-color: light-bg;
+        box-shadow: 0 0 10px rgba(29, 78, 216, 0.3);
+
+        &:hover {
+          background: light-accent;
+          box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+        }
+      }
+    }
+
+    .width-value {
+      color: light-bright;
+    }
   }
 
   .modal-overlay {
