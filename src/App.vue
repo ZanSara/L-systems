@@ -84,6 +84,29 @@
 </div>
       </div>
     </div>
+
+    <!-- Save SVG Modal -->
+    <div v-if='showSaveModal' class='modal-overlay' @click='showSaveModal = false'>
+      <div class='modal-content' @click.stop>
+        <h3>Save as SVG</h3>
+        <p>Choose which theme version(s) to save:</p>
+        <div class='modal-buttons'>
+          <button @click='saveSVGVersion("light")' class='modal-btn light-btn'>
+            ☀ Light Theme
+            <span class='filename'>l-system-light.svg</span>
+          </button>
+          <button @click='saveSVGVersion("dark")' class='modal-btn dark-btn'>
+            ☾ Dark Theme
+            <span class='filename'>l-system-dark.svg</span>
+          </button>
+          <button @click='saveSVGVersion("both")' class='modal-btn both-btn'>
+            ☀☾ Both Themes
+            <span class='filename'>2 files</span>
+          </button>
+        </div>
+        <button @click='showSaveModal = false' class='modal-cancel'>Cancel</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -104,7 +127,8 @@ export default {
       syntaxHelpVisible: false,
       currentExampleIndex: -1,
       examples: [],
-      isLightTheme: false
+      isLightTheme: false,
+      showSaveModal: false
     }
   },
   mounted() {
@@ -130,7 +154,60 @@ export default {
   },
   methods: {
     toSVGFile() {
-      this.scene.saveToSVG('l-system.svg');
+      this.showSaveModal = true;
+    },
+    saveSVGVersion(version) {
+      const currentTheme = this.isLightTheme;
+
+      if (version === 'light') {
+        if (!this.isLightTheme) {
+          this.scene.setTheme(true);
+          this.codeEditorModel.setCode(this.codeEditorModel.code);
+        }
+        this.scene.saveToSVG('l-system-light.svg');
+        if (!currentTheme) {
+          setTimeout(() => {
+            this.scene.setTheme(false);
+            this.codeEditorModel.setCode(this.codeEditorModel.code);
+          }, 100);
+        }
+      } else if (version === 'dark') {
+        if (this.isLightTheme) {
+          this.scene.setTheme(false);
+          this.codeEditorModel.setCode(this.codeEditorModel.code);
+        }
+        this.scene.saveToSVG('l-system-dark.svg');
+        if (currentTheme) {
+          setTimeout(() => {
+            this.scene.setTheme(true);
+            this.codeEditorModel.setCode(this.codeEditorModel.code);
+          }, 100);
+        }
+      } else if (version === 'both') {
+        // Save dark version
+        if (this.isLightTheme) {
+          this.scene.setTheme(false);
+          this.codeEditorModel.setCode(this.codeEditorModel.code);
+        }
+        this.scene.saveToSVG('l-system-dark.svg');
+
+        // Wait a bit, then save light version
+        setTimeout(() => {
+          this.scene.setTheme(true);
+          this.codeEditorModel.setCode(this.codeEditorModel.code);
+          this.scene.saveToSVG('l-system-light.svg');
+
+          // Restore original theme
+          if (!currentTheme) {
+            setTimeout(() => {
+              this.scene.setTheme(false);
+              this.codeEditorModel.setCode(this.codeEditorModel.code);
+            }, 100);
+          }
+        }, 200);
+      }
+
+      this.showSaveModal = false;
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;
@@ -773,7 +850,188 @@ light-help-background = #dfe6ee;
     color: #7f1d1d;
     border-left-color: #dc2626;
   }
+
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    background: light-bg;
+    border-color: light-accent;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                0 0 40px rgba(37, 99, 235, 0.2);
+
+    h3 {
+      color: light-bright;
+    }
+
+    p {
+      color: light-text;
+    }
+  }
+
+  .modal-btn {
+    color: light-bright;
+
+    &.light-btn {
+      border-color: #f59e0b;
+      color: #f59e0b;
+
+      &:hover {
+        background: rgba(245, 158, 11, 0.1);
+      }
+    }
+
+    &.dark-btn {
+      border-color: #7c3aed;
+      color: #7c3aed;
+
+      &:hover {
+        background: rgba(124, 58, 237, 0.1);
+      }
+    }
+
+    &.both-btn {
+      border-color: light-bright;
+      color: light-bright;
+
+      &:hover {
+        background: rgba(29, 78, 216, 0.1);
+      }
+    }
+  }
+
+  .modal-cancel {
+    border-color: light-border;
+    color: light-text;
+
+    &:hover {
+      background: light-border;
+      color: light-primary-text;
+    }
+  }
 }
+
+// Modal styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: blueprint-bg;
+  border: 2px solid blueprint-accent;
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+              0 0 40px rgba(58, 123, 213, 0.3);
+
+  h3 {
+    color: blueprint-bright;
+    font-size: 24px;
+    margin: 0 0 12px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Courier New', monospace;
+  }
+
+  p {
+    color: blueprint-text;
+    margin: 0 0 24px 0;
+    font-size: 15px;
+  }
+}
+
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.modal-btn {
+  padding: 16px 20px;
+  border: 2px solid;
+  border-radius: 6px;
+  background: transparent;
+  color: blueprint-bright;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .filename {
+    font-size: 12px;
+    opacity: 0.7;
+    font-weight: 400;
+    font-family: 'Courier New', monospace;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px currentColor;
+  }
+
+  &.light-btn {
+    border-color: #fbbf24;
+    color: #fbbf24;
+
+    &:hover {
+      background: rgba(251, 191, 36, 0.1);
+    }
+  }
+
+  &.dark-btn {
+    border-color: #8b5cf6;
+    color: #8b5cf6;
+
+    &:hover {
+      background: rgba(139, 92, 246, 0.1);
+    }
+  }
+
+  &.both-btn {
+    border-color: blueprint-bright;
+    color: blueprint-bright;
+
+    &:hover {
+      background: rgba(110, 181, 255, 0.1);
+    }
+  }
+}
+
+.modal-cancel {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid blueprint-border;
+  border-radius: 6px;
+  color: blueprint-text;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: blueprint-border;
+    color: primary-text;
+  }
+}
+
 
 @media (max-width: 768px) {
   .sidebar {

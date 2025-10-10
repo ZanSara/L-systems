@@ -34,7 +34,7 @@ export default function createLScene(canvas) {
   function saveToSVG(fileName) {
     let svg = toSVG(scene, {
       open() {
-        return `<!-- Generator: https://github.com/ZabSara/L-system -->`;
+        return `<!-- Generator: https://zansara.dev/L-system -->`;
       }
     });
     let blob = new Blob([svg], {type: "image/svg+xml"});
