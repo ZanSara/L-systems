@@ -493,7 +493,377 @@ rules:
 
 depth: 4
 angle: 36
-`
+`,
+`// L-System Leaf
+axiom: a
+rules: 
+ F => >F<
+ a => F[+x]Fb
+ b => F[-y]Fa
+ x => a
+ y => b
+
+depth: 4
+angle: 45`,
+
+`// L-System Bushes (variant 1)
+axiom: Y
+rules: 
+ X => X[-FFF][+FFF]FX
+ Y => YFX[+Y][-Y]
+
+depth: 4
+angle: 25.7`,
+
+`// L-System Bushes (variant 2)
+axiom: F
+rules: 
+ F => FF+[+F-F-F]-[-F+F+F]
+
+depth: 4
+angle: 22.5`,
+
+`// L-System Bushes (variant 3)
+axiom: F
+rules: 
+ F => F[+FF][-FF]F[-F][+F]F
+
+depth: 4
+angle: 35`,
+
+`// L-System Bushes (Saupe)
+axiom: VZFFF
+rules: 
+ V => [+++W][---W]YV
+ W => +X[-W]Z
+ X => -W[+X]Z
+ Y => YZ
+ Z => [-FFF][+FFF]F
+
+depth: 4
+angle: 20`,
+
+`// L-System Bushes (angle-scaled)
+axiom: FX
+rules: 
+ X => >[-FX]+FX
+
+depth: 4
+angle: 40`,
+
+`// L-System Sticks
+axiom: X
+rules: 
+ F => FF
+ X => F[+X]F[-X]+X
+
+depth: 4
+angle: 20`,
+
+`// L-System Algae (set 1)
+axiom: aF
+rules: 
+ a => FFFFFv[+++h][---q]fb
+ b => FFFFFv[+++h][---q]fc
+ c => FFFFFv[+++fa]fd
+ d => FFFFFv[+++h][---q]fe
+ e => FFFFFv[+++h][---q]fg
+ g => FFFFFv[---fa]fa
+ h => ifFF
+ i => fFFF[--m]j
+ j => fFFF[--n]k
+ k => fFFF[--o]l
+ l => fFFF[--p]
+ m => fFn
+ n => fFo
+ o => fFp
+ p => fF
+ q => rfF
+ r => fFFF[++m]s
+ s => fFFF[++n]t
+ t => fFFF[++o]u
+ u => fFFF[++p]
+ v => Fv
+
+depth: 4
+angle: 12`,
+
+`// L-System Algae (set 2)
+axiom: aF
+rules: 
+ a => FFFFFy[++++n][----t]fb
+ b => +FFFFFy[++++n][----t]fc
+ c => FFFFFy[++++n][----t]fd
+ d => -FFFFFy[++++n][----t]fe
+ e => FFFFFy[++++n][----t]fg
+ g => FFFFFy[+++fa]fh
+ h => FFFFFy[++++n][----t]fi
+ i => +FFFFFy[++++n][----t]fj
+ j => FFFFFy[++++n][----t]fk
+ k => -FFFFFy[++++n][----t]fl
+ l => FFFFFy[++++n][----t]fm
+ m => FFFFFy[---fa]fa
+ n => ofFFF
+ o => fFFFp
+ p => fFFF[-s]q
+ q => fFFF[-s]r
+ r => fFFF[-s]
+ s => fFfF
+ t => ufFFF
+ u => fFFFv
+ v => fFFF[+s]w
+ w => fFFF[+s]x
+ x => fFFF[+s]
+ y => Fy
+
+depth: 4
+angle: 12`,
+
+`// L-System Weed
+axiom: F
+rules: 
+ F => FF-[XY]+[XY]
+ X => +FY
+ Y => -FX
+
+depth: 4
+angle: 22.5`,
+
+`// Triangle
+axiom: F+F+F
+rules: 
+ F => F-F+F
+
+depth: 4
+angle: 120`,
+
+`// Quadratic Gosper (Dekking 1982)
+axiom: -YF
+rules: 
+ X => XFX-YF-YF+FX+FX-YF-YFFX+YF+FXFXYF-FX+YF+FXFX+YF-FXYF-YF-FX+FX+YFYF-
+ Y => +FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY
+
+depth: 4
+angle: 90`,
+
+`// Square Sierpinski
+axiom: F+XF+F+XF
+rules: 
+ X => XF-F+F-XF+F+XF-F+F-X
+
+depth: 4
+angle: 90`,
+
+`// Crystal
+axiom: F+F+F+F
+rules: 
+ F => FF+F++F+F
+
+depth: 4
+angle: 90`,
+
+`// Peano Curve
+axiom: X
+rules: 
+ X => XFYFX+F+YFXFY-F-XFYFX
+ Y => YFXFY-F-XFYFX+F+YFXFY
+
+depth: 4
+angle: 90`,
+
+`// Quadratic Snowflake
+axiom: F
+rules: 
+ F => F-F+F+F-F
+
+depth: 4
+angle: 90`,
+
+`// Quadratic Snowflake (Hasan Hosam variation)
+axiom: FF+FF+FF+FF
+rules: 
+ F => F+F-F-F+F
+
+depth: 4
+angle: 90`,
+
+`// Quadratic Koch Island (set 1)
+axiom: F+F+F+F
+rules: 
+ F => F+F-F-FFF+F+F-F
+
+depth: 4
+angle: 90`,
+
+`// Quadratic Koch Island (set 2)
+axiom: F+F+F+F
+rules: 
+ F => F-FF+FF+F+F-F-FF+F+F-F-FF-FF+F
+
+depth: 4
+angle: 90`,
+
+`// Quadratic Koch Island (Hasan Hosam variation)
+axiom: X+X+X+X+X+X+X+X
+rules: 
+ X => X+YF++YF-FX--FXFX-YF+X
+ Y => -FX+YFYF++YF+FX--FX-YF
+
+depth: 4
+angle: 45`,
+
+`// Koch Curve
+axiom: F+F+F+F
+rules: 
+ F => F+F-F-FF+F+F-F
+
+depth: 4
+angle: 90`,
+
+`// Board
+axiom: F+F+F+F
+rules: 
+ F => FF+F+F+F+FF
+
+depth: 4
+angle: 90`,
+
+`// Hilbert
+axiom: X
+rules: 
+ X => -YF+XFX+FY-
+ Y => +XF-YFY-FX+
+
+depth: 4
+angle: 90`,
+
+`// Sierpinski Arrowhead
+axiom: YF
+rules: 
+ X => YF+XF+Y
+ Y => XF-YF-X
+
+depth: 4
+angle: 60`,
+
+`// Von Koch Snowflake
+axiom: F++F++F
+rules: 
+ F => F-F++F-F
+
+depth: 4
+angle: 60`,
+
+`// Cross (June 1990)
+axiom: F+F+F+F
+rules: 
+ F => F+FF++F+F
+
+depth: 4
+angle: 90`,
+
+`// Cross (August 1990)
+axiom: F+F+F+F
+rules: 
+ F => F+F-F+F+F
+
+depth: 4
+angle: 90`,
+
+`// Pentaplexity
+axiom: F++F++F++F++F
+rules: 
+ F => F++F++F|F-F++F
+
+depth: 4
+angle: 36`,
+
+`// Tiles
+axiom: F+F+F+F
+rules: 
+ F => FF+F-F+F+FF
+
+depth: 4
+angle: 90`,
+
+`// Rings
+axiom: F+F+F+F
+rules: 
+ F => FF+F+F+F+F+F-F
+
+depth: 4
+angle: 90`,
+
+`// Dragon Curve
+axiom: FX
+rules: 
+ X => X+YF+
+ Y => -FX-Y
+
+depth: 4
+angle: 90`,
+
+`// Hexagonal Gosper (Mandelbrot 1982)
+axiom: XF
+rules: 
+ X => X+YF++YF-FX--FXFX-YF+
+ Y => -FX+YFYF++YF+FX--FX-Y
+
+depth: 4
+angle: 60`,
+
+`// Lévy curve
+axiom: F
+rules: 
+ F => -F++F-
+
+depth: 4
+angle: 45`,
+
+`// Classic Sierpinski Curve (Chris Wallace rules)
+axiom: F--XF--F--XF
+rules: 
+ X => XF+F+XF--F--XF+F+X
+
+depth: 4
+angle: 45`,
+
+`// Krishna Anklets
+axiom: -X--X
+rules: 
+ X => XFX--XFX
+
+depth: 4
+angle: 45`,
+
+`// Mango Leaf
+axiom: Y---Y
+rules: 
+ X => {F-F}{F-F}--[--X]{F-F}{F-F}--{F-F}{F-F}--
+ Y => f-F+X+F-fY
+
+depth: 4
+angle: 60`,
+
+`// Snake Kolam
+axiom: F+XF+F+XF
+rules: 
+ X => X{F-F-F}+XF+F+X{F-F-F}+X
+
+depth: 4
+angle: 90`,
+
+`// Kolam (Jan 2019)
+axiom: (-D--D)
+rules: 
+ A => F++FFFF--F--FFFF++F++FFFF--F
+ B => F--FFFF++F++FFFF--F--FFFF++F
+ C => BFA--BFA
+ D => CFC--CFC
+
+depth: 4
+angle: 45`,
+
   ]
 
 export default function getCodeModel(scene) {
