@@ -109,19 +109,21 @@ export default {
   },
   mounted() {
     this.scene = createScene(document.querySelector('#scene'));
-    this.codeEditorModel = getCodeModel(this.scene);
-    this.examples = this.codeEditorModel.getExamples().sort((a, b) =>
-      a.name.localeCompare(b.name)
-    );
 
-    // Load theme preference from localStorage
+    // Load theme preference from localStorage FIRST
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
       this.isLightTheme = true;
     }
 
-    // Set initial theme for canvas
+    // Set theme BEFORE loading code so default color is correct
     this.scene.setTheme(this.isLightTheme);
+
+    // Now load the code model with the correct default color
+    this.codeEditorModel = getCodeModel(this.scene);
+    this.examples = this.codeEditorModel.getExamples().sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
   },
   beforeDestroy() {
     this.scene.dispose();
@@ -155,6 +157,10 @@ export default {
       localStorage.setItem('theme', this.isLightTheme ? 'light' : 'dark');
       if (this.scene) {
         this.scene.setTheme(this.isLightTheme);
+        // Reload the current code to apply the new default color
+        if (this.codeEditorModel && this.codeEditorModel.code) {
+          this.codeEditorModel.setCode(this.codeEditorModel.code);
+        }
       }
     }
   }

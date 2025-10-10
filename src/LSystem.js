@@ -155,7 +155,10 @@ function coerceTypes(system) {
   if (system.width !== undefined) system.width = Number.parseFloat(system.width);
   if (system.depth !== undefined) system.depth = Number.parseFloat(system.depth);
   if (system.color !== undefined) {
-    let rgba = tinycolor(system.color).toRgb();
-    system.color = (rgba.r << 24) | (rgba.g << 16) | (rgba.b << 8) | (rgba.a * 255 | 0)
-  } 
+    // If color is already a number, it's in RRGGBBAA format - don't convert it
+    if (typeof system.color !== 'number') {
+      let rgba = tinycolor(system.color).toRgb();
+      system.color = (rgba.r << 24) | (rgba.g << 16) | (rgba.b << 8) | (rgba.a * 255 | 0)
+    }
+  }
 }

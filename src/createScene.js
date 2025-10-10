@@ -119,12 +119,13 @@ export default function createLScene(canvas) {
     if (isLight) {
       // Light theme: white background, black lines
       scene.setClearColor(1, 1, 1, 1);
-      defaultColor = 0x000000FF; // black
+      defaultColor = 0x000000FF; // black: RRGGBBAA format
     } else {
       // Dark theme: black background, white lines
       scene.setClearColor(0, 0, 0, 1);
-      defaultColor = 0xFFFFFFFF; // white
+      defaultColor = 0xFFFFFFFF; // white: RRGGBBAA format
     }
+    // Force a re-render
     scene.renderFrame();
   }
 
