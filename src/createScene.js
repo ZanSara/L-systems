@@ -2,10 +2,14 @@ import {createScene, createGuide, toSVG} from 'w-gl';
 import LSystem from './LSystem';
 
 export default function createLScene(canvas) {
-  let scene = createScene(canvas);
-  let guide = createGuide(scene, {
-    lineColor: 0x0d3f71ff
+  let scene = createScene(canvas, {
+    // Disable 3D transformations, only allow 2D panning and zooming
+    camera: {
+      allowRotation: false,
+      allowPinchRotation: false
+    }
   });
+  let guide = null; // Start with grid hidden
 
   scene.setClearColor(0, 0, 0, 1)
   let initialSceneSize = 40;
@@ -22,6 +26,8 @@ export default function createLScene(canvas) {
   let raf = requestAnimationFrame(frame);
   let defaultColor = 0xFFFFFFFF; // white
   let defaultLineWidth = 2;
+  let currentTheme = 'dark'; // Track current theme
+  let gridColor = 0x444444ff; // medium gray for dark theme
 
   return {
     dispose,
@@ -31,6 +37,8 @@ export default function createLScene(canvas) {
     stop,
     setTheme,
     setLineWidth,
+    setGridVisible,
+    setRotation,
   }
 
   function saveToSVG(fileName) {
@@ -76,10 +84,8 @@ export default function createLScene(canvas) {
     if (!Array.isArray(newSystem)) {
       newSystem = [newSystem]
     }
-    let wantGuideToBeHidden = false;
     lSystem = [];
     newSystem.forEach(systemSettings => {
-      wantGuideToBeHidden = true;
       // Set default color if not specified
       if (systemSettings.color === undefined) {
         systemSettings.color = defaultColor;
@@ -90,13 +96,6 @@ export default function createLScene(canvas) {
       }
       lSystem.push(new LSystem(scene, systemSettings));
     });
-
-    if (wantGuideToBeHidden && guide) {
-      guide.dispose();
-      guide = null;
-    } else if (!wantGuideToBeHidden && !guide) {
-      guide = createGuide(scene);
-    }
 
     raf = requestAnimationFrame(frame);
   }
@@ -127,21 +126,57 @@ export default function createLScene(canvas) {
   }
 
   function setTheme(isLight) {
+    currentTheme = isLight ? 'light' : 'dark';
+
     if (isLight) {
-      // Light theme: white background, black lines
+      // Light theme: white background, black lines, dark gray grid
       scene.setClearColor(1, 1, 1, 1);
       defaultColor = 0x000000FF; // black: RRGGBBAA format
+      gridColor = 0x888888ff; // dark gray for light theme
     } else {
-      // Dark theme: black background, white lines
+      // Dark theme: black background, white lines, light gray grid
       scene.setClearColor(0, 0, 0, 1);
       defaultColor = 0xFFFFFFFF; // white: RRGGBBAA format
+      gridColor = 0x444444ff; // medium gray for dark theme
     }
+
+    // Update grid color if it's visible
+    if (guide) {
+      const wasVisible = true;
+      guide.dispose();
+      guide = createGuide(scene, {
+        lineColor: gridColor
+      });
+    }
+
     // Force a re-render
     scene.renderFrame();
   }
 
   function setLineWidth(width) {
     defaultLineWidth = width;
+  }
+
+  function setGridVisible(visible) {
+    if (visible && !guide) {
+      guide = createGuide(scene, {
+        lineColor: gridColor
+      });
+    } else if (!visible && guide) {
+      guide.dispose();
+      guide = null;
+    }
+    scene.renderFrame();
+  }
+
+  function setRotation(degrees) {
+    const camera = scene.getCamera();
+    if (camera) {
+      // Convert degrees to radians and apply as 2D rotation around Z-axis
+      const radians = (degrees * Math.PI) / 180;
+      camera.setRotation(0, 0, radians);
+      scene.renderFrame();
+    }
   }
 
   function dispose() {

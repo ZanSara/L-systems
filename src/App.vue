@@ -73,6 +73,34 @@
           <span class='width-value'>{{ lineWidth }}px</span>
         </div>
 
+        <div class='view-controls'>
+          <div class='grid-toggle'>
+            <label for='show-grid'>Show Grid:</label>
+            <input
+              id='show-grid'
+              type='checkbox'
+              v-model='showGrid'
+              @change='toggleGrid'
+              class='grid-checkbox'
+            />
+            <span class='toggle-switch' :class='{"active": showGrid}' @click='showGrid = !showGrid; toggleGrid()'></span>
+          </div>
+
+          <div class='rotation-control'>
+            <label for='rotation'>Rotation:</label>
+            <input
+              id='rotation'
+              type='range'
+              min='0'
+              max='360'
+              step='1'
+              v-model.number='rotation'
+              @input='updateRotation'
+            />
+            <span class='rotation-value'>{{ rotation }}°</span>
+          </div>
+        </div>
+
         <div class='controls'>
           <a href="#" class='album-button' @click.prevent='pickFromAlbum'>Pick from Examples</a>
           <a href="#" class='randomize-button' @click.prevent='trueRandomize'>Random Values</a>
@@ -143,7 +171,9 @@ export default {
       examples: [],
       isLightTheme: false,
       showSaveModal: false,
-      lineWidth: 2
+      lineWidth: 2,
+      showGrid: false,
+      rotation: 0
     }
   },
   mounted() {
@@ -259,6 +289,16 @@ export default {
       if (this.scene && this.codeEditorModel && this.codeEditorModel.code) {
         this.scene.setLineWidth(this.lineWidth);
         this.codeEditorModel.setCode(this.codeEditorModel.code);
+      }
+    },
+    toggleGrid() {
+      if (this.scene) {
+        this.scene.setGridVisible(this.showGrid);
+      }
+    },
+    updateRotation() {
+      if (this.scene) {
+        this.scene.setRotation(this.rotation);
       }
     }
   }
@@ -595,6 +635,140 @@ light-help-background = #dfe6ee;
   }
 
   .width-value {
+    color: blueprint-bright;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 45px;
+    text-align: right;
+    font-family: 'Courier New', monospace;
+  }
+}
+
+.view-controls {
+  padding: 16px;
+  background: rgba(30, 58, 95, 0.2);
+  border: 1px solid blueprint-border;
+  border-radius: 4px;
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.grid-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  label {
+    color: blueprint-text;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+  }
+
+  .grid-checkbox {
+    display: none;
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: blueprint-border;
+    border: 2px solid blueprint-border;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: blueprint-text;
+      border-radius: 50%;
+      transition: all 0.3s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    &.active {
+      background: blueprint-accent;
+      border-color: blueprint-bright;
+
+      &::after {
+        left: 26px;
+        background: blueprint-bright;
+        box-shadow: 0 2px 8px rgba(110, 181, 255, 0.6);
+      }
+    }
+
+    &:hover {
+      border-color: blueprint-accent;
+    }
+  }
+}
+
+.rotation-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  label {
+    color: blueprint-text;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 80px;
+  }
+
+  input[type='range'] {
+    flex: 1;
+    height: 6px;
+    background: blueprint-border;
+    border-radius: 3px;
+    outline: none;
+    -webkit-appearance: none;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: blueprint-bright;
+      cursor: pointer;
+      border: 2px solid blueprint-bg;
+      box-shadow: 0 0 10px rgba(110, 181, 255, 0.5);
+      transition: all 0.2s;
+
+      &:hover {
+        background: primary-text;
+        box-shadow: 0 0 15px rgba(110, 181, 255, 0.8);
+        transform: scale(1.1);
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: blueprint-bright;
+      cursor: pointer;
+      border: 2px solid blueprint-bg;
+      box-shadow: 0 0 10px rgba(110, 181, 255, 0.5);
+      transition: all 0.2s;
+
+      &:hover {
+        background: primary-text;
+        box-shadow: 0 0 15px rgba(110, 181, 255, 0.8);
+        transform: scale(1.1);
+      }
+    }
+  }
+
+  .rotation-value {
     color: blueprint-bright;
     font-size: 14px;
     font-weight: 600;
@@ -980,6 +1154,76 @@ light-help-background = #dfe6ee;
 
     .width-value {
       color: light-bright;
+    }
+  }
+
+  .view-controls {
+    background: rgba(185, 201, 219, 0.2);
+    border-color: light-border;
+
+    .grid-toggle {
+      label {
+        color: light-text;
+      }
+
+      .toggle-switch {
+        background: light-border;
+        border-color: light-border;
+
+        &::after {
+          background: light-text;
+        }
+
+        &.active {
+          background: light-accent;
+          border-color: light-bright;
+
+          &::after {
+            background: light-bright;
+            box-shadow: 0 2px 8px rgba(29, 78, 216, 0.4);
+          }
+        }
+
+        &:hover {
+          border-color: light-accent;
+        }
+      }
+    }
+
+    .rotation-control {
+      label {
+        color: light-text;
+      }
+
+      input[type='range'] {
+        background: light-border;
+
+        &::-webkit-slider-thumb {
+          background: light-bright;
+          border-color: light-bg;
+          box-shadow: 0 0 10px rgba(29, 78, 216, 0.3);
+
+          &:hover {
+            background: light-accent;
+            box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+          }
+        }
+
+        &::-moz-range-thumb {
+          background: light-bright;
+          border-color: light-bg;
+          box-shadow: 0 0 10px rgba(29, 78, 216, 0.3);
+
+          &:hover {
+            background: light-accent;
+            box-shadow: 0 0 15px rgba(29, 78, 216, 0.5);
+          }
+        }
+      }
+
+      .rotation-value {
+        color: light-bright;
+      }
     }
   }
 
