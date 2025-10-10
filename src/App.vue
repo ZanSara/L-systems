@@ -60,17 +60,19 @@
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
 
         <div class='view-controls'>
-          <label for='line-width'>Line Width:</label>
-          <input
-            id='line-width'
-            type='range'
-            min='0.5'
-            max='10'
-            step='0.5'
-            v-model.number='lineWidth'
-            @input='updateLineWidth'
-          />
-          <span class='width-value'>{{ lineWidth }}px</span>
+          <div class='rotation-control'>
+            <label for='line-width'>Line Width:</label>
+            <input
+              id='line-width'
+              type='range'
+              min='1'
+              max='30'
+              step='1'
+              v-model.number='lineWidth'
+              @input='updateLineWidth'
+            />
+            <span class='rotation-value'>{{ lineWidth }}px</span>
+          </div>
           <div class='grid-toggle'>
             <label for='show-grid'>Show Grid:</label>
             <input
@@ -82,7 +84,6 @@
             />
             <span class='toggle-switch' :class='{"active": showGrid}' @click='showGrid = !showGrid; toggleGrid()'></span>
           </div>
-
           <div class='rotation-control'>
             <label for='rotation'>Rotation:</label>
             <input

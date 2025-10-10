@@ -25,7 +25,7 @@ export default function createLScene(canvas) {
   let disposeLater;
   let raf = requestAnimationFrame(frame);
   let defaultColor = 0xFFFFFFFF; // white
-  let defaultLineWidth = 2;
+  let defaultLineWidth = 8;
   let currentTheme = 'dark'; // Track current theme
   let gridColor = 0x444444ff; // medium gray for dark theme
 
@@ -48,8 +48,9 @@ export default function createLScene(canvas) {
       scale: 5
     });
 
-    // Add non-scaling-stroke to keep line width constant regardless of scale
-    svg = svg.replace(/<path /g, '<path vector-effect="non-scaling-stroke" ');
+    // Add non-scaling-stroke and line join/cap attributes for sharp corners
+    // Use square caps to extend lines at endpoints, ensuring they overlap and connect
+    svg = svg.replace(/<path /g, '<path vector-effect="non-scaling-stroke" stroke-linejoin="miter" stroke-linecap="square" ');
 
     let blob = new Blob([svg], {type: "image/svg+xml"});
     let url = window.URL.createObjectURL(blob);
