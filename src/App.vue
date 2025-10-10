@@ -74,8 +74,8 @@
               :key='index'
               href='#'
               class='example-item'
-              :class='{"active": currentExampleIndex === index}'
-              @click.prevent='loadExample(index)'
+              :class='{"active": currentExampleIndex === example.index}'
+              @click.prevent='loadExample(example.index)'
             >
               {{ example.name }}
             </a>

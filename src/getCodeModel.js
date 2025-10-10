@@ -9,7 +9,7 @@ var qs = queryState({
 
 // Create a Parser object from our grammar.
 let standardCollection = [
-`// dragon curve
+`// Dragon
 axiom: X
 rules: 
  X => X+YF+
@@ -18,7 +18,7 @@ rules:
 depth: 10
 angle: 90`,
 
-`// William McWorters Terdragon
+`// William McWorters: Terdragon
 axiom: F
 rules: 
  F => F+F-F
@@ -26,7 +26,7 @@ rules:
 depth: 8
 angle: 120`,
 
-`// William McWorters Pentl
+`// William McWorters: Pentl
 axiom: F-F-F-F-F
 rules: 
   F => cF-F-F++dF+F-F 
@@ -37,7 +37,7 @@ actions:
   c => setColor("mediumpurple")
   d => setColor("violet") `,
 
-`// William McWorters Pentant
+`// William McWorters: Pentant
 axiom: X-X-X-X-X
 rules: 
   F => 
@@ -50,7 +50,7 @@ actions:
   c => setColor("goldenrod")
   d => setColor("gold") `,
 
-`// William McWorter Sierπnski Carpet 
+`// William McWorter: Sierπnski Carpet 
 axiom: F
 rules: 
  F => cF+F-F-F-f+dF+F+F-F
@@ -79,7 +79,7 @@ rules:
 depth:4
 angle: 90`,
 
-`// Gary Teachout Pean-c
+`// Gary Teachout: Pean-c
 axiom: FX
 rules:
  F => 
@@ -105,7 +105,7 @@ rules:
 
 direction: [0, 1, 0]
 angle: 22.5`,
-`// Tree with color
+`// Tree (color)
 axiom: X
 rules: 
  F => FF
@@ -118,7 +118,7 @@ actions:
   c => setColor('green')
   d => setColor('lightgreen')`,
 
-`// Bush, after P. Bourke
+`// P. Bourke: Bush
 axiom: Y
 rules: 
   X => X[-FFF]c[+FFF]FX
@@ -132,7 +132,7 @@ actions:
   d => setColor('lime')
   e => setColor('brown')`,
 
-` // Grains, after P. Bourke
+` // P. Bourke: Grains
 axiom: Y
 rules: 
   X => dX[-F+FF]cg[+F-FF]dFX
@@ -147,7 +147,7 @@ actions:
   e => setColor('lightgreen')
   g => rotate(0.3)`,
 
-` // Grains 2, after P. Bourke
+` // P. Bourke: Grains 2
 axiom: Y
 rules: 
   X => cX[-FF-F]g[+FF+F]dFX
@@ -162,7 +162,7 @@ actions:
   e => setColor('gold')
   g => rotate(0.2)`,
 
-`// Bush, P. Bourke
+`// P. Bourke: Bush
 axiom: F
 rules: 
   F => FF+[c+F-F-F]-[-F+F+dF]
@@ -175,7 +175,7 @@ actions:
   c => setColor('green')
   d => setColor('lime')`,
 
-`// P. Bourkes Pentaplexy
+`// P. Bourke: Pentaplexy
 axiom: F++F++F++F++F
 rules: 
   F => cF++F++F+++++dF-F++F
@@ -186,7 +186,7 @@ actions:
   c => setColor('mediumpurple')
   d => setColor('violet')`,
 
-`// poetasters shrub
+`// Poetasters Shrub
 axiom: F
 rules: 
  F => Fe[+cFF]Fd[-FF]cF
@@ -200,7 +200,7 @@ actions:
   d => setColor('lightgreen')
   e => setColor('brown')`,
 
-`// poetasters weed, after, P. Bourke
+`// Poetasters Weed
 axiom: F
 rules:
   F -> F-[XY]+[XY]F+[XY]-[XY]
@@ -215,7 +215,7 @@ actions:
   c => setColor('green')
   d => setColor('lime')`,
 
-`// Unlikely bush (after Bourke)
+`// Unlikely Bush
 axiom: F
 rules: 
   F => eF[+cFF][-FF]cF[-F]d[+F]F
@@ -229,7 +229,7 @@ actions:
   d => setColor('lime')
   e => setColor('brown')`,
 
-`// Weed, P. Bourke
+`// Weed
 axiom: F
 rules:
   F -> FF-[XY]+[XY]
@@ -243,7 +243,7 @@ actions:
   c => setColor('green')
   d => setColor('lime')`,
 
-`// P. Bourke after Saupe
+`// Saupe
 axiom: VZFFF
 rules:
   V -> [+++W][---W]YV
@@ -260,7 +260,7 @@ actions:
   c => setColor('lightgreen')
   d => setColor('lime')`,
 
-`// poetaster's curly, inspired by  McWorter
+`// Poetaster's curly
 axiom: F+F-F+F
 rules: 
   F => eF-F-F++[cF+F-dF[GGG]][GGG]
@@ -276,7 +276,7 @@ actions:
   e => setColor("green")
   g => draw(2)`,
 
-`// aquatic plant
+`// Aquatic Plant
 axiom: F
 rules:
   F -> FFc[-F++F]d[+F--F]e++F--F
@@ -290,7 +290,7 @@ actions:
   d => setColor('lime')
   e => setColor('goldenrod')`,
 
-`// another aquatic 
+`// Aquatic Plant 2
 axiom: F
 rules:
   F => FMNOMBxPNMyO
@@ -310,7 +310,7 @@ actions:
   x => rotateX(2)
   y => rotateY(-3)`,
 
-`// poetasters third aquatic
+`// Poetasters Aquatic Plant
 axiom: F
 rules:
   F -> FMNxQRyQR[O-O-O-O-0]
@@ -331,7 +331,7 @@ actions:
   x => rotateX(2)
   y => rotateY(-1.5)`,
 
-`// poetasters sallow thorn
+`// Poetasters Sallow Thorn
 axiom: F
 rules:
   F -> FMNxQRyQROP
@@ -353,7 +353,7 @@ actions:
   x => rotateX(2)
   y => rotateY(-1.5)`,
 
-`// Pean-c flower after Gary Teachout
+`// Pean-c Flower
 axiom: FXhFXiFX
 rules:
  F => 
@@ -372,7 +372,7 @@ actions:
   h => rotate(5)
   i => rotate(-3)`,
 
-`// poetasters succulent 1
+`// Poetasters Succulent 1
 axiom: A
 rules:
  A =>[FL]gAhg[FLA]
@@ -392,7 +392,7 @@ actions:
   g => rotate(4.5)
   h => rotate(-3)`,
 
-`// Pyramids, Anthony Hanmer ADH258a 
+`// Pyramids
 axiom: F++F++F+++F--F--F
 rules: 
   F =>  cFF++F++F++dFFF
@@ -404,7 +404,7 @@ actions:
   c => setColor('gold')
   d => setColor('goldenrod')`,
 
-`// Hilbert curve
+`// Hilbert Curve
 axiom: X
 rules: 
  X => -YF+XFX+FY-
@@ -422,7 +422,7 @@ actions:
   c => setColor("goldenrod")
   d => setColor("gold")`,
 
-`// blocks
+`// Blocks
 axiom: F+F+F+F
 rules: 
  F => F-f+FF-FF-FF-FFf-FFFF
@@ -431,7 +431,7 @@ rules:
 angle: 90
 depth: 3 `,
 
-`// aztec blocks
+`// Aztec Blocks
 axiom: F-F-F-F
 rules: 
  F => F-cf+FF-F-FF-Ff-FF+df-FF+F+FF+Ff+FFF
@@ -473,7 +473,7 @@ rules:
  Y => f-F+X+F-fY
 
 depth: 8
-angle: 60`, `// esum
+angle: 60`, `// Esum
 axiom: X+X+X+X+X+X+X+X
 rules: 
  X => [F[-X++Y]]
@@ -506,7 +506,7 @@ rules:
 depth: 4
 angle: 45`,
 
-`// L-System Bushes (variant 1)
+`// L-System Bushes 1
 axiom: Y
 rules: 
  X => X[-FFF][+FFF]FX
@@ -515,7 +515,7 @@ rules:
 depth: 4
 angle: 25.7`,
 
-`// L-System Bushes (variant 2)
+`// L-System Bushes 2
 axiom: F
 rules: 
  F => FF+[+F-F-F]-[-F+F+F]
@@ -523,7 +523,7 @@ rules:
 depth: 4
 angle: 22.5`,
 
-`// L-System Bushes (variant 3)
+`// L-System Bushes 3
 axiom: F
 rules: 
  F => F[+FF][-FF]F[-F][+F]F
@@ -560,7 +560,7 @@ rules:
 depth: 4
 angle: 20`,
 
-`// L-System Algae (set 1)
+`// L-System Algae 1
 axiom: aF
 rules: 
  a => FFFFFv[+++h][---q]fb
@@ -588,7 +588,7 @@ rules:
 depth: 4
 angle: 12`,
 
-`// L-System Algae (set 2)
+`// L-System Algae 2
 axiom: aF
 rules: 
  a => FFFFFy[++++n][----t]fb
@@ -637,7 +637,7 @@ rules:
 depth: 4
 angle: 120`,
 
-`// Quadratic Gosper (Dekking 1982)
+`// Quadratic Gosper
 axiom: -YF
 rules: 
  X => XFX-YF-YF+FX+FX-YF-YFFX+YF+FXFXYF-FX+YF+FXFX+YF-FXYF-YF-FX+FX+YFYF-
@@ -679,7 +679,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Quadratic Snowflake (Hasan Hosam variation)
+`// Quadratic Snowflake
 axiom: FF+FF+FF+FF
 rules: 
  F => F+F-F-F+F
@@ -687,7 +687,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Quadratic Koch Island (set 1)
+`// Quadratic Koch Island 1
 axiom: F+F+F+F
 rules: 
  F => F+F-F-FFF+F+F-F
@@ -695,7 +695,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Quadratic Koch Island (set 2)
+`// Quadratic Koch Island 2
 axiom: F+F+F+F
 rules: 
  F => F-FF+FF+F+F-F-FF+F+F-F-FF-FF+F
@@ -754,7 +754,7 @@ rules:
 depth: 4
 angle: 60`,
 
-`// Cross (June 1990)
+`// Cross
 axiom: F+F+F+F
 rules: 
  F => F+FF++F+F
@@ -762,7 +762,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Cross (August 1990)
+`// Cross 2
 axiom: F+F+F+F
 rules: 
  F => F+F-F+F+F
@@ -803,7 +803,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Hexagonal Gosper (Mandelbrot 1982)
+`// Hexagonal Gosper
 axiom: XF
 rules: 
  X => X+YF++YF-FX--FXFX-YF+
@@ -820,7 +820,7 @@ rules:
 depth: 4
 angle: 45`,
 
-`// Classic Sierpinski Curve (Chris Wallace rules)
+`// Classic Sierpinski Curve
 axiom: F--XF--F--XF
 rules: 
  X => XF+F+XF--F--XF+F+X
@@ -853,7 +853,7 @@ rules:
 depth: 4
 angle: 90`,
 
-`// Kolam (Jan 2019)
+`// Kolam
 axiom: (-D--D)
 rules: 
  A => F++FFFF--F--FFFF++F++FFFF--F
