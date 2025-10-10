@@ -59,7 +59,7 @@
         </div>
         <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
 
-        <div class='line-width-control'>
+        <div class='view-controls'>
           <label for='line-width'>Line Width:</label>
           <input
             id='line-width'
@@ -71,9 +71,6 @@
             @input='updateLineWidth'
           />
           <span class='width-value'>{{ lineWidth }}px</span>
-        </div>
-
-        <div class='view-controls'>
           <div class='grid-toggle'>
             <label for='show-grid'>Show Grid:</label>
             <input
@@ -177,7 +174,11 @@ export default {
     }
   },
   mounted() {
-    this.scene = createScene(document.querySelector('#scene'));
+    const canvas = document.querySelector('#scene');
+    this.scene = createScene(canvas);
+
+    // Store canvas reference for rotation
+    this.canvas = canvas;
 
     // Load theme preference from localStorage FIRST
     const savedTheme = localStorage.getItem('theme');
@@ -187,6 +188,9 @@ export default {
 
     // Set theme BEFORE loading code so default color is correct
     this.scene.setTheme(this.isLightTheme);
+
+    // Set body background to match theme (fixes rotation artifact)
+    this.updateBodyBackground();
 
     // Now load the code model with the correct default color
     this.codeEditorModel = getCodeModel(this.scene);
@@ -279,11 +283,17 @@ export default {
       localStorage.setItem('theme', this.isLightTheme ? 'light' : 'dark');
       if (this.scene) {
         this.scene.setTheme(this.isLightTheme);
+        this.updateBodyBackground();
         // Reload the current code to apply the new default color
         if (this.codeEditorModel && this.codeEditorModel.code) {
           this.codeEditorModel.setCode(this.codeEditorModel.code);
         }
       }
+    },
+    updateBodyBackground() {
+      // Update body background to match the canvas theme
+      // This prevents white showing through when canvas is rotated
+      document.body.style.backgroundColor = this.isLightTheme ? '#ffffff' : '#000000';
     },
     updateLineWidth() {
       if (this.scene && this.codeEditorModel && this.codeEditorModel.code) {
@@ -297,8 +307,9 @@ export default {
       }
     },
     updateRotation() {
-      if (this.scene) {
-        this.scene.setRotation(this.rotation);
+      if (this.canvas) {
+        // Apply CSS rotation directly to the canvas
+        this.canvas.style.transform = `rotate(${this.rotation}deg)`;
       }
     }
   }

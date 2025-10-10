@@ -38,7 +38,6 @@ export default function createLScene(canvas) {
     setTheme,
     setLineWidth,
     setGridVisible,
-    setRotation,
   }
 
   function saveToSVG(fileName) {
@@ -142,7 +141,6 @@ export default function createLScene(canvas) {
 
     // Update grid color if it's visible
     if (guide) {
-      const wasVisible = true;
       guide.dispose();
       guide = createGuide(scene, {
         lineColor: gridColor
@@ -167,16 +165,6 @@ export default function createLScene(canvas) {
       guide = null;
     }
     scene.renderFrame();
-  }
-
-  function setRotation(degrees) {
-    const camera = scene.getCamera();
-    if (camera) {
-      // Convert degrees to radians and apply as 2D rotation around Z-axis
-      const radians = (degrees * Math.PI) / 180;
-      camera.setRotation(0, 0, radians);
-      scene.renderFrame();
-    }
   }
 
   function dispose() {
