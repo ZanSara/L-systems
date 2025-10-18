@@ -164,7 +164,8 @@ export default function createLScene(canvas) {
     if (guide) {
       guide.dispose();
       guide = createGuide(scene, {
-        lineColor: gridColor
+        lineColor: gridColor,
+        showCursor: false
       });
     }
 
@@ -179,7 +180,8 @@ export default function createLScene(canvas) {
   function setGridVisible(visible) {
     if (visible && !guide) {
       guide = createGuide(scene, {
-        lineColor: gridColor
+        lineColor: gridColor,
+        showCursor: false
       });
     } else if (!visible && guide) {
       guide.dispose();

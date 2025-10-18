@@ -9,10 +9,15 @@
     <div class='sidebar' :class='{"sidebar-open": sidebarOpen}'>
       <div class='editor-container'>
         <div class="section">
-          <p>Test</p>
+        <div class='title'>
+          L-Systems
+          <a href="https://zansara.dev"><small> by Sara Zan </small></a>
+          <a href="https://github.com/ZanSara/L-systems" target="_blank" class="github-link" title="View source on GitHub">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+          </a>
         </div>
-        <div class="section">
-        <div class='title'>L-System details: <a class='reset-all' :class='{"syntax-visible": syntaxHelpVisible}' href='#' @click.prevent='syntaxHelpVisible = !syntaxHelpVisible' title='click to learn more about syntax'>syntax help</a></div>
         <div class='help' v-if='syntaxHelpVisible'>
           L-Systems are described very well on <a href='http://paulbourke.net/fractals/lsys/' target="_blank">Paul Bourke's website</a>.
           <p>The following is the list of available sections:
@@ -60,7 +65,10 @@
             </ul>
           </p>
         </div>
-        <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
+        <div class='editor-wrapper'>
+          <a class='syntax-help-button' :class='{"syntax-visible": syntaxHelpVisible}' href='#' @click.prevent='syntaxHelpVisible = !syntaxHelpVisible' title='click to learn more about syntax'>?</a>
+          <code-editor v-if='codeEditorModel' :model='codeEditorModel' class='code-editor-container'></code-editor>
+        </div>
 
         <div class='view-controls'>
           <div class='rotation-control'>
@@ -563,6 +571,8 @@ light-help-background = #dfe6ee;
 
 .theme-toggle {
   right: 16px;
+  top: auto;
+  bottom: 16px;
 }
 
 .section {
@@ -605,12 +615,10 @@ light-help-background = #dfe6ee;
   a {
     color: blueprint-bright;
     text-decoration: none;
-    border-bottom: 1px dashed blueprint-border;
     transition: all 0.2s;
 
     &:hover {
       color: primary-text;
-      border-bottom-color: blueprint-accent;
     }
   }
 
@@ -653,30 +661,26 @@ light-help-background = #dfe6ee;
   letter-spacing: 1px;
   font-family: 'Courier New', monospace;
 
-  a {
-    float: right;
-    font-size: 11px;
-    font-style: normal;
-    color: help-text-color;
-    text-transform: none;
-    letter-spacing: 0;
-    padding: 6px 12px;
-    border: 1px solid blueprint-border;
-    border-radius: 3px;
-    background: blueprint-dark;
-    margin-top: -4px;
+  .github-link {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    color: blueprint-bright;
+    border: none;
+    opacity: 0.8;
     transition: all 0.2s;
+    vertical-align: middle;
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
 
     &:hover {
-      background: blueprint-border;
-      border-color: blueprint-accent;
+      opacity: 1;
+      color: primary-text;
+      transform: scale(1.1);
     }
-  }
-
-  a.syntax-visible {
-    background: blueprint-accent;
-    color: white;
-    border-color: blueprint-bright;
   }
 }
 
@@ -739,8 +743,42 @@ light-help-background = #dfe6ee;
   }
 }
 
-.code-editor-container {
+.editor-wrapper {
+  position: relative;
   margin: 16px 0;
+}
+
+.code-editor-container {
+  width: 100%;
+}
+
+.syntax-help-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  font-size: 14px;
+  font-style: normal;
+  color: help-text-color;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 6px 12px;
+  border: 1px solid blueprint-border;
+  border-radius: 3px;
+  background: blueprint-dark;
+  transition: all 0.2s;
+  text-decoration: none;
+
+  &:hover {
+    background: blueprint-border;
+    border-color: blueprint-accent;
+  }
+
+  &.syntax-visible {
+    background: blueprint-accent;
+    color: white;
+    border-color: blueprint-bright;
+  }
 }
 
 .line-width-control {
@@ -1172,6 +1210,16 @@ light-help-background = #dfe6ee;
       color: white;
       border-color: light-bright;
     }
+
+    .github-link {
+      color: light-bright;
+      border: none;
+      background: transparent;
+
+      &:hover {
+        color: light-primary-text;
+      }
+    }
   }
 
   .help {
@@ -1198,6 +1246,23 @@ light-help-background = #dfe6ee;
     pre {
       background: rgba(0, 0, 0, 0.05);
       border-color: light-border;
+    }
+  }
+
+  .syntax-help-button {
+    color: light-help-text-color;
+    border-color: light-border;
+    background: light-dark;
+
+    &:hover {
+      background: light-border;
+      border-color: light-accent;
+    }
+
+    &.syntax-visible {
+      background: light-accent;
+      color: white;
+      border-color: light-bright;
     }
   }
 
