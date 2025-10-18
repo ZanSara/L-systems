@@ -2,7 +2,7 @@
 
 This website allows you to edit [L-Systems](https://en.wikipedia.org/wiki/L-system) and generate random ones.
 
-![demo](https://i.imgur.com/z8YW0YK.png)
+![demo](public/main.png)
 
 Forked from https://anvaka.github.io/lsystem
 
