@@ -9,6 +9,9 @@
     <div class='sidebar' :class='{"sidebar-open": sidebarOpen}'>
       <div class='editor-container'>
         <div class="section">
+          <p>Test</p>
+        </div>
+        <div class="section">
         <div class='title'>L-System details: <a class='reset-all' :class='{"syntax-visible": syntaxHelpVisible}' href='#' @click.prevent='syntaxHelpVisible = !syntaxHelpVisible' title='click to learn more about syntax'>syntax help</a></div>
         <div class='help' v-if='syntaxHelpVisible'>
           L-Systems are described very well on <a href='http://paulbourke.net/fractals/lsys/' target="_blank">Paul Bourke's website</a>.
@@ -125,6 +128,38 @@
       </div>
     </div>
 
+    <!-- Selection Mask Overlay -->
+    <div v-if='showSelectionMask' class='selection-overlay'>
+      <div
+        class='selection-mask'
+        :style='{
+          left: selectionRect.left + "px",
+          top: selectionRect.top + "px",
+          width: selectionRect.width + "px",
+          height: selectionRect.height + "px"
+        }'
+        @mousedown='startDrag'
+      >
+        <div class='selection-border'></div>
+        <div class='resize-handle nw' @mousedown.stop='startResize("nw", $event)'></div>
+        <div class='resize-handle ne' @mousedown.stop='startResize("ne", $event)'></div>
+        <div class='resize-handle sw' @mousedown.stop='startResize("sw", $event)'></div>
+        <div class='resize-handle se' @mousedown.stop='startResize("se", $event)'></div>
+        <div class='resize-handle n' @mousedown.stop='startResize("n", $event)'></div>
+        <div class='resize-handle s' @mousedown.stop='startResize("s", $event)'></div>
+        <div class='resize-handle w' @mousedown.stop='startResize("w", $event)'></div>
+        <div class='resize-handle e' @mousedown.stop='startResize("e", $event)'></div>
+      </div>
+      <div class='selection-controls'>
+        <button @click='confirmSelection' class='selection-confirm-btn'>
+          Confirm Selection
+        </button>
+        <button @click='cancelSelection' class='selection-cancel-btn'>
+          Cancel
+        </button>
+      </div>
+    </div>
+
     <!-- Save SVG Modal -->
     <div v-if='showSaveModal' class='modal-overlay' @click='showSaveModal = false'>
       <div class='modal-content' @click.stop>
@@ -169,6 +204,12 @@ export default {
       examples: [],
       isLightTheme: false,
       showSaveModal: false,
+      showSelectionMask: false,
+      selectionRect: { left: 100, top: 100, width: 400, height: 400 },
+      isDragging: false,
+      isResizing: false,
+      resizeHandle: null,
+      dragStartPos: { x: 0, y: 0 },
       lineWidth: 2,
       showGrid: false,
       rotation: 0
@@ -198,23 +239,41 @@ export default {
     this.examples = this.codeEditorModel.getExamples().sort((a, b) =>
       a.name.localeCompare(b.name)
     );
+
+    // Add global mouse event listeners for drag and resize
+    document.addEventListener('mousemove', this.handleMouseMove);
+    document.addEventListener('mouseup', this.handleMouseUp);
   },
   beforeDestroy() {
     this.scene.dispose();
+    document.removeEventListener('mousemove', this.handleMouseMove);
+    document.removeEventListener('mouseup', this.handleMouseUp);
   },
   methods: {
     toSVGFile() {
-      this.showSaveModal = true;
+      // Initialize selection rect to center of viewport
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      this.selectionRect = {
+        left: viewportWidth / 2 - 200,
+        top: viewportHeight / 2 - 200,
+        width: 400,
+        height: 400
+      };
+      this.showSelectionMask = true;
     },
     saveSVGVersion(version) {
       const currentTheme = this.isLightTheme;
+
+      // Convert screen coordinates to world coordinates
+      const customViewBox = this.getCustomViewBox();
 
       if (version === 'light') {
         if (!this.isLightTheme) {
           this.scene.setTheme(true);
           this.codeEditorModel.setCode(this.codeEditorModel.code);
         }
-        this.scene.saveToSVG('l-system-light.svg');
+        this.scene.saveToSVG('l-system-light.svg', customViewBox);
         if (!currentTheme) {
           setTimeout(() => {
             this.scene.setTheme(false);
@@ -226,7 +285,7 @@ export default {
           this.scene.setTheme(false);
           this.codeEditorModel.setCode(this.codeEditorModel.code);
         }
-        this.scene.saveToSVG('l-system-dark.svg');
+        this.scene.saveToSVG('l-system-dark.svg', customViewBox);
         if (currentTheme) {
           setTimeout(() => {
             this.scene.setTheme(true);
@@ -239,13 +298,13 @@ export default {
           this.scene.setTheme(false);
           this.codeEditorModel.setCode(this.codeEditorModel.code);
         }
-        this.scene.saveToSVG('l-system-dark.svg');
+        this.scene.saveToSVG('l-system-dark.svg', customViewBox);
 
         // Wait a bit, then save light version
         setTimeout(() => {
           this.scene.setTheme(true);
           this.codeEditorModel.setCode(this.codeEditorModel.code);
-          this.scene.saveToSVG('l-system-light.svg');
+          this.scene.saveToSVG('l-system-light.svg', customViewBox);
 
           // Restore original theme
           if (!currentTheme) {
@@ -258,6 +317,27 @@ export default {
       }
 
       this.showSaveModal = false;
+    },
+    getCustomViewBox() {
+      // Get the scene object from w-gl
+      const wglScene = this.scene.getScene();
+
+      // Convert screen coordinates to world coordinates
+      const topLeft = wglScene.getSceneCoordinate(
+        this.selectionRect.left,
+        this.selectionRect.top
+      );
+      const bottomRight = wglScene.getSceneCoordinate(
+        this.selectionRect.left + this.selectionRect.width,
+        this.selectionRect.top + this.selectionRect.height
+      );
+
+      return {
+        left: topLeft.x,
+        top: topLeft.y,
+        right: bottomRight.x,
+        bottom: bottomRight.y
+      };
     },
     toggleSidebar() {
       this.sidebarOpen = !this.sidebarOpen;
@@ -312,6 +392,85 @@ export default {
         // Apply CSS rotation directly to the canvas
         this.canvas.style.transform = `rotate(${this.rotation}deg)`;
       }
+    },
+    startDrag(event) {
+      this.isDragging = true;
+      this.dragStartPos = {
+        x: event.clientX - this.selectionRect.left,
+        y: event.clientY - this.selectionRect.top
+      };
+    },
+    startResize(handle, event) {
+      this.isResizing = true;
+      this.resizeHandle = handle;
+      this.dragStartPos = {
+        x: event.clientX,
+        y: event.clientY,
+        rect: { ...this.selectionRect }
+      };
+    },
+    handleMouseMove(event) {
+      if (this.isDragging) {
+        this.selectionRect.left = event.clientX - this.dragStartPos.x;
+        this.selectionRect.top = event.clientY - this.dragStartPos.y;
+      } else if (this.isResizing) {
+        const dx = event.clientX - this.dragStartPos.x;
+        const dy = event.clientY - this.dragStartPos.y;
+        const startRect = this.dragStartPos.rect;
+
+        switch (this.resizeHandle) {
+          case 'nw':
+            this.selectionRect.left = startRect.left + dx;
+            this.selectionRect.top = startRect.top + dy;
+            this.selectionRect.width = startRect.width - dx;
+            this.selectionRect.height = startRect.height - dy;
+            break;
+          case 'ne':
+            this.selectionRect.top = startRect.top + dy;
+            this.selectionRect.width = startRect.width + dx;
+            this.selectionRect.height = startRect.height - dy;
+            break;
+          case 'sw':
+            this.selectionRect.left = startRect.left + dx;
+            this.selectionRect.width = startRect.width - dx;
+            this.selectionRect.height = startRect.height + dy;
+            break;
+          case 'se':
+            this.selectionRect.width = startRect.width + dx;
+            this.selectionRect.height = startRect.height + dy;
+            break;
+          case 'n':
+            this.selectionRect.top = startRect.top + dy;
+            this.selectionRect.height = startRect.height - dy;
+            break;
+          case 's':
+            this.selectionRect.height = startRect.height + dy;
+            break;
+          case 'w':
+            this.selectionRect.left = startRect.left + dx;
+            this.selectionRect.width = startRect.width - dx;
+            break;
+          case 'e':
+            this.selectionRect.width = startRect.width + dx;
+            break;
+        }
+
+        // Ensure minimum size
+        if (this.selectionRect.width < 50) this.selectionRect.width = 50;
+        if (this.selectionRect.height < 50) this.selectionRect.height = 50;
+      }
+    },
+    handleMouseUp() {
+      this.isDragging = false;
+      this.isResizing = false;
+      this.resizeHandle = null;
+    },
+    confirmSelection() {
+      this.showSelectionMask = false;
+      this.showSaveModal = true;
+    },
+    cancelSelection() {
+      this.showSelectionMask = false;
     }
   }
 
@@ -1430,6 +1589,231 @@ light-help-background = #dfe6ee;
   .sidebar-toggle.sidebar-open {
     left: calc(100% - 60px);
     max-left: 416px;
+  }
+}
+
+// Selection mask styles
+.selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10001;
+  backdrop-filter: blur(2px);
+}
+
+.selection-mask {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+
+  .selection-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 3px dashed blueprint-bright;
+    background: rgba(110, 181, 255, 0.1);
+    pointer-events: none;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(110, 181, 255, 0.5);
+  }
+
+  .resize-handle {
+    position: absolute;
+    background: blueprint-bright;
+    border: 2px solid blueprint-bg;
+    box-shadow: 0 0 10px rgba(110, 181, 255, 0.8);
+    z-index: 10;
+
+    &.nw, &.ne, &.sw, &.se {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    &.n, &.s, &.e, &.w {
+      background: blueprint-accent;
+    }
+
+    &.nw {
+      top: -6px;
+      left: -6px;
+      cursor: nw-resize;
+    }
+
+    &.ne {
+      top: -6px;
+      right: -6px;
+      cursor: ne-resize;
+    }
+
+    &.sw {
+      bottom: -6px;
+      left: -6px;
+      cursor: sw-resize;
+    }
+
+    &.se {
+      bottom: -6px;
+      right: -6px;
+      cursor: se-resize;
+    }
+
+    &.n {
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 8px;
+      border-radius: 4px;
+      cursor: n-resize;
+    }
+
+    &.s {
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 8px;
+      border-radius: 4px;
+      cursor: s-resize;
+    }
+
+    &.w {
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 40px;
+      border-radius: 4px;
+      cursor: w-resize;
+    }
+
+    &.e {
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 40px;
+      border-radius: 4px;
+      cursor: e-resize;
+    }
+
+    &:hover {
+      background: primary-text;
+      transform: scale(1.2);
+      box-shadow: 0 0 20px rgba(110, 181, 255, 1);
+    }
+
+    &.n:hover, &.s:hover {
+      transform: translateX(-50%) scale(1.2);
+    }
+
+    &.w:hover, &.e:hover {
+      transform: translateY(-50%) scale(1.2);
+    }
+  }
+}
+
+.selection-controls {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  z-index: 10002;
+
+  button {
+    padding: 14px 32px;
+    border: 2px solid;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px currentColor;
+    }
+  }
+
+  .selection-confirm-btn {
+    background: blueprint-accent;
+    color: white;
+    border-color: blueprint-bright;
+
+    &:hover {
+      background: blueprint-bright;
+      border-color: primary-text;
+    }
+  }
+
+  .selection-cancel-btn {
+    background: transparent;
+    color: #ef5350;
+    border-color: #ef5350;
+
+    &:hover {
+      background: rgba(239, 83, 80, 0.1);
+      color: #ff6b68;
+      border-color: #ff6b68;
+    }
+  }
+}
+
+// Light theme overrides for selection mask
+#app.light-theme {
+  .selection-mask {
+    .selection-border {
+      border-color: light-bright;
+      background: rgba(29, 78, 216, 0.1);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5),
+                  0 0 30px rgba(29, 78, 216, 0.5);
+    }
+
+    .resize-handle {
+      background: light-bright;
+      border-color: light-bg;
+      box-shadow: 0 0 10px rgba(29, 78, 216, 0.8);
+
+      &.n, &.s, &.e, &.w {
+        background: light-accent;
+      }
+
+      &:hover {
+        background: light-primary-text;
+      }
+    }
+  }
+
+  .selection-controls {
+    .selection-confirm-btn {
+      background: light-accent;
+      border-color: light-bright;
+
+      &:hover {
+        background: light-bright;
+      }
+    }
+
+    .selection-cancel-btn {
+      color: #dc2626;
+      border-color: #dc2626;
+
+      &:hover {
+        background: rgba(220, 38, 38, 0.1);
+        color: #b91c1c;
+        border-color: #b91c1c;
+      }
+    }
   }
 }
 </style>

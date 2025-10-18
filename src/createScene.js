@@ -13,12 +13,13 @@ export default function createLScene(canvas) {
 
   scene.setClearColor(0, 0, 0, 1)
   let initialSceneSize = 40;
-  scene.setViewBox({
+  let currentViewBox = {
     left:  -initialSceneSize,
     top:   -initialSceneSize,
     right:  initialSceneSize,
     bottom: initialSceneSize,
-  });
+  };
+  scene.setViewBox(currentViewBox);
 
   let canDrawMore = false;
   let lSystem = [];
@@ -38,15 +39,34 @@ export default function createLScene(canvas) {
     setTheme,
     setLineWidth,
     setGridVisible,
+    getScene: () => scene,
   }
 
-  function saveToSVG(fileName) {
-    let svg = toSVG(scene, {
+  function saveToSVG(fileName, customViewBox) {
+    // Save the current viewBox if we're using a custom one
+    let originalViewBox = null;
+    if (customViewBox) {
+      originalViewBox = { ...currentViewBox };
+      currentViewBox = customViewBox;
+      scene.setViewBox(customViewBox);
+      scene.renderFrame(); // Force a render with the new viewBox
+    }
+
+    let svgOptions = {
       open() {
         return `<!-- Generator: https://zansara.dev/L-system -->`;
       },
       scale: 5
-    });
+    };
+
+    let svg = toSVG(scene, svgOptions);
+
+    // Restore the original viewBox if we changed it
+    if (originalViewBox) {
+      currentViewBox = originalViewBox;
+      scene.setViewBox(originalViewBox);
+      scene.renderFrame();
+    }
 
     // Add non-scaling-stroke and line join/cap attributes for sharp corners
     // Use square caps to extend lines at endpoints, ensuring they overlap and connect
