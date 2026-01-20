@@ -584,6 +584,7 @@ light-help-background = #dfe6ee;
   left: 0;
   top: 0;
   width: 500px;
+  max-width: 100vw;
   height: 100vh;
   overflow: hidden;
   background: blueprint-bg;
