@@ -252,7 +252,7 @@ export default {
     document.addEventListener('mousemove', this.handleMouseMove);
     document.addEventListener('mouseup', this.handleMouseUp);
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.scene.dispose();
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
