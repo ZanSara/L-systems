@@ -1,117 +1,182 @@
 # L-Systems Explorer
 
-This website allows you to edit [L-Systems](https://en.wikipedia.org/wiki/L-system) and generate random ones.
+An interactive [L-System](https://en.wikipedia.org/wiki/l-system) editor and
+visualizer in **plain HTML + JavaScript with zero dependencies** — no
+framework, no build step, no npm install.
 
-![demo](public/main.png)
+![demo](main.png)
 
-Forked from https://anvaka.github.io/lsystem
+Originally forked from <https://anvaka.github.io/lsystem> by Andrei Kashcha
+(and later rewritten from Vue to vanilla JS). L-Systems themselves are
+described very well on
+[Paul Bourke's website](http://paulbourke.net/fractals/lsys/).
 
-## High level details
+## Running
 
-The rendering is done with WebGL use can explore generated system similar to a map (with pan-zoom interaction).
+Open `index.html` in a browser. That's it — everything is loaded with classic
+`<script>` tags, so it also works straight from the filesystem (`file://`).
+If you prefer a local server:
 
-To change camera angle hold `Option` (or `Alt`) key and drag with mouse, or slide two fingers up/down.
+```sh
+python3 -m http.server   # then visit http://localhost:8000
+```
 
-You can click `Randomize` button to generate a well-known L-System and tweak it. While `randomize`
-functionality provides basic L-Systems, I'd love to find a better way to introduce variety here. Please let
-me know if you have suggestions how to improve random L-System generation logic, so that it produces appealing
-results.
+## Using the app
 
-## Syntax/L-Systems details
+- Type an L-system definition in the editor; the drawing re-renders ~300 ms
+  after you stop typing. Parse errors appear in a red banner below the editor.
+- **Shift+Up / Shift+Down** with the cursor on a number nudges it by ±1 and
+  re-renders immediately — great for animating angles.
+- **Pan** by dragging the canvas, **zoom** with the mouse wheel or a pinch
+  gesture. Until you touch the camera, the view automatically follows the
+  growing drawing.
+- The URL always reflects the current system (`?code=...`), so you can share
+  a link to whatever you made.
+- **Pick from Examples** loads a random entry from the album of well-known
+  systems (also browsable in the list at the bottom of the sidebar). Entries
+  marked with a **duplicate** badge define exactly the same system as an
+  earlier entry; a **variant** badge means the same fractal with different
+  colors, depth or angle. Hover a badge to see which entry it matches.
+- **Random Values** generates a brand new random L-system.
+- **Stop Generation** halts an in-progress drawing.
+- **Save as SVG** lets you drag/resize a selection rectangle over the canvas
+  and downloads that region as an SVG file.
+- The view controls adjust the line width, toggle a reference grid, and
+  rotate the canvas.
+- The ☀/☾ button in the bottom-right corner switches between dark and light
+  themes (remembered across visits). SVG export uses whichever theme is
+  active.
 
-L-Systems are described very well on [Paul Bourke's](http://paulbourke.net/fractals/lsys/) website.
+## Definition syntax
 
-### Sections in the editor
-
-Each section can be entered in the text editor, followed by a semicolon. For example:
+A definition is a list of sections. Each section is a `key: value` line;
+`rules:` and `actions:` are followed by one `SYMBOL => value` line per entry.
+Lines starting with `//` are comments.
 
 ```
 axiom: X
 rules:
-  X => F+F
+  X => -YF+XFX+FY-
+  Y => +XF-YFY-FX+
+
+depth: 5
+angle: 90
 ```
 
-Here we entered two sections: `axiom` and `rules`. The list of available sections, along with their
-meanings is below:
+| Section | Meaning |
+| --- | --- |
+| `axiom` | initial state of the system |
+| `rules` | rewrite rules applied on each iteration |
+| `depth` | how many times the rules are applied (default 5) |
+| `angle` | default rotation angle in degrees for `+` and `-` (default 60) |
+| `actions` | graphic commands triggered by matching characters (see below) |
+| `width` | width in pixels of the drawn line |
+| `color` | line color; accepts CSS names and hex (`blue`, `#0000ff`) |
+| `stepsPerFrame` | actions executed per animation frame (default 42); `-1` renders everything at once |
+| `direction` | initial heading as `x, y, z` |
+| `position` | initial position as `x, y, z` |
 
-* `axiom` - initial state of the system
-* `rules` - list of rewrite rules that are applied on each iteration
-* `depth` - how deep we are allowed to go recursively
-* `angle` - if specified, this argument governs rotation angle. Can be overridden with actions
-* `actions` - list of graphic commands that are triggered by a matching character in the evolved system.
-* `width` - width in pixels of the drawn line
-* `color` - color of the line. Accepts names and hex. E.g. `blue`, works the same as `#0000ff`
-* `stepsPerFrame` - how many steps we are allowed to render per single frame. If set to -1 the scene is rendered immediately. This could be dangerous on deep systems, as the entire system traversal may exhaust the browser's resources.
-* `direction` - three numbers separated by coma `x, y, z` that set initial direction
-* `position` three numbers separated by coma `x, y, z` that set initial position
+Available actions:
 
-### Actions
+| Action | Meaning |
+| --- | --- |
+| `draw(x)` | draw `x` units in the current direction (default 10) |
+| `move(x)` | move `x` units without drawing |
+| `rotate(deg)` | rotate the heading around the Z axis |
+| `rotateX(deg)` / `rotateY(deg)` | rotate around the X / Y axis |
+| `push()` / `pop()` | save / restore position, heading and color |
+| `setColor(color)` | change the current line color |
+| `swapAngle()` | swap the meaning of `+` and `-` |
 
-Actions are associated with each symbol in the `rules` section. When processor finds matching action
-it executes it.
-
-For example, let's say we have the following system:
+These actions are bound by default (with `angle` substituted):
 
 ```
-axiom: X
-rules:
-  X => F+FX
-
-depth: 4
 actions:
-  F => draw(10)
-  + => rotate(90)
-```
-
-Once the system is unwrapped, we get the following string: 
-
-```
-F+FF+FF+FF+F
-```
-
-Each `F` has an associated action `draw(10)` which means "draw 10 units in current direction".
-Each `+` has an associated action `rotate(90)` which means "rotate 90 degrees".
-
-Can you guess what `F+FF+FF+FF+F` will render? To see the final result, [click here](https://anvaka.github.io/lsystem/?code=axiom%3A%20X%0Arules%3A%0A%20%20X%20%3D%3E%20F%2BFX%0A%0Adepth%3A%204%0Aactions%3A%0A%20%20F%20%3D%3E%20draw%2810%29%0A%20%20%2B%20%3D%3E%20rotate%2890%29)
-
-Here is the list of all available actions:
-
-`draw(x)` draw `x` units in current direction
-`move(x)` move `x` units in current direction without drawing
-`rotate(deg)` rotate current direction `deg` degrees around `Z` axis
-`rotateX(deg)` rotate current direction `deg` degrees around `X` axis
-`rotateY(deg)` rotate current direction `deg` degrees around `Y` axis
-`push()` saves current render state onto stack
-`pop()` restores previously saved render state
-
-By default the following actions are added automatically:
-actions:
-
-```
   F => draw(10)
   f => move(10)
   + => rotate(60)
   - => rotate(-60)
+  & => swapAngle()
   [ => push()
   ] => pop()
 ```
 
-## Local development
+The turtle state is fully 3D (so `rotateX`/`rotateY` and 3D `direction`
+vectors work), but the rendering projects everything onto the XY plane — the
+viewer is strictly 2D.
+
+If the expanded system exceeds 1,000,000 characters, expansion stops and a
+warning is shown; the first million characters are still rendered.
+
+## Adding your own examples
+
+The album lives in `examples.js` — it's a plain-text list wrapped in a single
+JavaScript string, so the app keeps working straight from `file://`. To add
+an example, open the file and append at the end (just before the closing
+backtick):
 
 ```
-npm install
+---
+// My Fractal
+axiom: F
+rules:
+ F => F+F--F+F
+
+depth: 4
+angle: 60
 ```
 
-### Compiles and hot-reloads for development
-```
-npm start
-```
+Examples are separated by lines containing only `---`, and the first `// ...`
+comment of each one becomes its display name in the sidebar. Only one rule:
+don't use backticks or `${` inside an example, since they would terminate the
+JavaScript string that wraps the album.
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Duplicates are detected automatically when the list is built, so if your new
+entry matches an existing system it gets a badge too.
 
-# License
+## Code layout
 
-[MIT](https://github.com/anvaka/lsystem/blob/master/LICENSE.md)
+| File | Role |
+| --- | --- |
+| `index.html` | page markup: sidebar, controls, canvas, selection overlay |
+| `style.css` | the "blueprint" theme (dark + light) |
+| `examples.js` | **user-editable** album of example systems (plain text in a JS string) |
+| `js/parser.js` | parses the definition language into a settings object |
+| `js/turtle.js` | 3D turtle that emits line segments |
+| `js/lsystem.js` | rule expansion, action compilation, incremental render iterator |
+| `js/scene.js` | Canvas 2D renderer: camera, animation loop, grid, SVG export |
+| `js/album.js` | splits `examples.js` into the list and flags duplicates |
+| `js/random.js` | random system generator |
+| `js/app.js` | UI wiring, URL state, editor behavior |
+
+The flow is: `app.js` reads the editor → `parser.js` produces a settings
+object → `scene.setSystem()` builds an `LSystem` (which expands the axiom and
+creates a `Turtle`) → a `requestAnimationFrame` loop advances the system a
+few actions per frame, and the turtle's segments are drawn incrementally.
+
+## Deployment
+
+There is nothing to build: the GitHub Actions workflow
+(`.github/workflows/main.yml`) publishes the repository content as-is to the
+`gh-pages` branch on every push to `main`.
+
+## Differences from the previous Vue version
+
+This app used to be a Vue 3 + WebGL project (see the git history). The
+rewrite changed:
+
+- **No framework, no build, no dependencies.** Vue, CodeMirror, w-gl,
+  tinycolor and query-state are replaced by a textarea, Canvas 2D,
+  native CSS color strings and `URLSearchParams`.
+- **Canvas 2D instead of WebGL**, and the camera is strictly 2D (the
+  original already disallowed 3D camera rotation).
+- **Simpler SVG export** — it renders the active theme directly instead of
+  asking which theme(s) to save.
+- **Auto-fit camera**: the view follows the drawing until you pan or zoom,
+  so systems that wander off-screen stay visible.
+- **Better "Random Values"**: continuous angles (not just 45/60/90),
+  branching rules, varied axioms, and color actions that are actually
+  referenced by the generated rules.
+- Bug fixes: the `axiom`/`start` parser inconsistency is gone, parser errors
+  report 1-based line numbers, and a missing `rules` section no longer
+  crashes rendering.
