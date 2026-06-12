@@ -295,24 +295,41 @@ export default {
       }
     },
     getCustomViewBox() {
-      // Get the scene object from w-gl
       const wglScene = this.scene.getScene();
+      const canvas = this.canvas;
+      const rect = canvas.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const rad = -Math.PI * (this.rotation || 0) / 180;
+      const cos = Math.cos(rad);
+      const sin = Math.sin(rad);
 
-      // Convert screen coordinates to world coordinates
-      const topLeft = wglScene.getSceneCoordinate(
-        this.selectionRect.left,
-        this.selectionRect.top
-      );
-      const bottomRight = wglScene.getSceneCoordinate(
-        this.selectionRect.left + this.selectionRect.width,
-        this.selectionRect.top + this.selectionRect.height
-      );
+      // The canvas may be CSS-rotated around its center, so convert each
+      // selection corner from viewport space into the un-rotated canvas-pixel
+      // frame before asking w-gl for world coords.
+      const toCanvas = (vx, vy) => {
+        const dx = vx - cx;
+        const dy = vy - cy;
+        const rx = cos * dx - sin * dy;
+        const ry = sin * dx + cos * dy;
+        return { x: rx + rect.width / 2, y: ry + rect.height / 2 };
+      };
 
+      const { left, top, width, height } = this.selectionRect;
+      const corners = [
+        toCanvas(left, top),
+        toCanvas(left + width, top),
+        toCanvas(left, top + height),
+        toCanvas(left + width, top + height),
+      ].map(p => wglScene.getSceneCoordinate(p.x, p.y));
+
+      const xs = corners.map(p => p.x);
+      const ys = corners.map(p => p.y);
       return {
-        left: topLeft.x,
-        top: topLeft.y,
-        right: bottomRight.x,
-        bottom: bottomRight.y
+        left: Math.min(...xs),
+        right: Math.max(...xs),
+        top: Math.min(...ys),
+        bottom: Math.max(...ys),
       };
     },
     toggleSidebar() {
