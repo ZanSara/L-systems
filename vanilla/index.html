@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="description" content="This website allows you to define and visualize an L-System online and generate random ones.">
+    <meta name="keywords" content="l-system, fractal, visualization, anvaka, zansara" />
+    <meta name="author" content="ZanSara, Andrei Kashcha">
+    <meta property="og:title" content="L-System generator" />
+    <meta property="og:description" content="This website allows you to define and visualize an L-System online and generate random ones." />
+    <title>L-System Explorer</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but the L-System Explorer doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+
+    <canvas id="scene"></canvas>
+
+    <button id="sidebar-toggle" class="sidebar-toggle sidebar-open" title="Toggle sidebar">
+      <span class="toggle-icon">&times;</span>
+    </button>
+
+    <button id="theme-toggle" class="theme-toggle" title="Switch to light theme">
+      <span class="theme-icon">&#9790;</span>
+    </button>
+
+    <div id="sidebar" class="sidebar sidebar-open">
+      <div class="editor-container">
+        <div class="section">
+          <div class="title">
+            L-Systems
+            <a href="https://zansara.dev"><small> by Sara Zan </small></a>
+            <a href="https://github.com/ZanSara/L-systems" target="_blank" class="github-link" title="View source on GitHub">
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="help" id="syntax-help" hidden>
+            L-Systems are described very well on <a href="http://paulbourke.net/fractals/lsys/" target="_blank">Paul Bourke's website</a>.
+            <p>The following is the list of available sections:</p>
+            <ul>
+              <li><strong>axiom</strong>: initial state of the system</li>
+              <li><strong>rules</strong>: list of rewrite rules that are applied on each iteration</li>
+              <li><strong>depth</strong>: how deep we are allowed to go recursively</li>
+              <li><strong>angle</strong>: if specified, this argument governs rotation angle. Can be overridden with <strong>actions</strong></li>
+              <li><strong>actions</strong>: list of graphic commands that are triggered by a matching character in the evolved system.
+                The following is the list of available actions:
+                <ul>
+                  <li><strong>draw(x)</strong> draw <code>x</code> units in current direction</li>
+                  <li><strong>move(x)</strong> move <code>x</code> units in current direction without drawing</li>
+                  <li><strong>rotate(deg)</strong> rotate current direction <code>deg</code> degrees around Z axis</li>
+                  <li><strong>rotateX(deg)</strong> rotate current direction <code>deg</code> degrees around X axis</li>
+                  <li><strong>rotateY(deg)</strong> rotate current direction <code>deg</code> degrees around Y axis</li>
+                  <li><strong>push()</strong> saves current render state onto stack</li>
+                  <li><strong>pop()</strong> restores previously saved render state</li>
+                  <li><strong>setColor(color)</strong> set the current color value, '#ffa500' or 'orange'.</li>
+                  <li><strong>swapAngle()</strong> swaps the meaning of `+` and `-`.</li>
+                </ul>
+                <p>By default the following actions are added automatically:</p>
+<pre><code>actions:
+  F => draw(10)
+  f => move(10)
+  + => rotate(60)
+  - => rotate(-60)
+  &amp; => swapAngle()
+  [ => push()
+  ] => pop()
+</code></pre>
+              </li>
+              <li><strong>width</strong>: width in pixels of the drawn line</li>
+              <li><strong>color</strong>: color of the line. Accepts names and hex. E.g. <code>blue</code>, works the same as <code>#0000ff</code></li>
+              <li><strong>stepsPerFrame</strong>: how many steps we are allowed to render per single frame.
+                If set to <code>-1</code> the scene is rendered immediately. This could be dangerous on deep
+                systems, as the entire system traversal may exhaust the browser's resources.
+              </li>
+              <li><strong>direction</strong>: three numbers separated by coma <code>x, y, z</code> that set initial direction</li>
+              <li><strong>position</strong>: three numbers separated by coma <code>x, y, z</code> that set initial position</li>
+            </ul>
+          </div>
+
+          <div class="editor-wrapper">
+            <a id="syntax-help-button" class="syntax-help-button" href="#" title="click to learn more about syntax">?</a>
+            <textarea id="code" class="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+            <div id="error" class="error-container" hidden><pre id="error-text"></pre></div>
+          </div>
+
+          <div class="view-controls">
+            <div class="slider-control">
+              <label for="line-width">Line Width:</label>
+              <input id="line-width" type="range" min="1" max="30" step="1" value="2" />
+              <span class="slider-value" id="line-width-value">2px</span>
+            </div>
+            <div class="grid-toggle">
+              <label for="show-grid">Show Grid:</label>
+              <input id="show-grid" type="checkbox" class="grid-checkbox" />
+              <span class="toggle-switch" id="grid-switch"></span>
+            </div>
+            <div class="slider-control">
+              <label for="rotation">Rotation:</label>
+              <input id="rotation" type="range" min="0" max="360" step="1" value="0" />
+              <span class="slider-value" id="rotation-value">0&deg;</span>
+            </div>
+          </div>
+
+          <div class="controls">
+            <a href="#" id="pick-example" class="album-button">Pick from Examples</a>
+            <a href="#" id="random-values" class="randomize-button">Random Values</a>
+            <a href="#" id="stop-generation" class="stop-button">Stop Generation</a>
+            <a href="#" id="save-svg" class="save-button">Save as SVG</a>
+          </div>
+
+          <div class="section examples-section">
+            <div class="title">Examples</div>
+            <div class="examples-list" id="examples-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selection mask for SVG export -->
+    <div id="selection-overlay" class="selection-overlay" hidden>
+      <div id="selection-mask" class="selection-mask">
+        <div class="selection-border"></div>
+        <div class="resize-handle nw" data-handle="nw"></div>
+        <div class="resize-handle ne" data-handle="ne"></div>
+        <div class="resize-handle sw" data-handle="sw"></div>
+        <div class="resize-handle se" data-handle="se"></div>
+        <div class="resize-handle n" data-handle="n"></div>
+        <div class="resize-handle s" data-handle="s"></div>
+        <div class="resize-handle w" data-handle="w"></div>
+        <div class="resize-handle e" data-handle="e"></div>
+      </div>
+      <div class="selection-controls">
+        <button id="selection-confirm" class="selection-confirm-btn">Save Selection</button>
+        <button id="selection-cancel" class="selection-cancel-btn">Cancel</button>
+      </div>
+    </div>
+
+    <script src="js/parser.js"></script>
+    <script src="js/turtle.js"></script>
+    <script src="js/lsystem.js"></script>
+    <script src="js/scene.js"></script>
+    <script src="js/examples.js"></script>
+    <script src="js/random.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

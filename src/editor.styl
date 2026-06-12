@@ -9,10 +9,10 @@ standardText = #DDD;
 maxHeight = 320px;
 
 .CodeMirror {
-	height: auto;
-  max-height: maxHeight;
+	height: maxHeight;
 	font-size: 14px;
   z-index: 0;
+  overflow: hidden;
 	background-color: window-background;
   border: 1px solid window-background;
 
@@ -21,8 +21,7 @@ maxHeight = 320px;
 	}
 
 	.CodeMirror-scroll {
-    height: auto;
-		max-height: maxHeight;
+		height: 100%;
 	}
 	.CodeMirror-linenumber,
 	.CodeMirror-scroll,
