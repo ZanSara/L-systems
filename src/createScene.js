@@ -154,6 +154,10 @@ export default function createLScene(canvas) {
   function stop() {
     cancelAnimationFrame(raf);
     canDrawMore = false;
+    if (disposeLater) {
+      disposeLater.forEach(l => l.dispose());
+      disposeLater = null;
+    }
   }
 
   function setTheme(isLight) {
