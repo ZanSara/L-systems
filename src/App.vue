@@ -1651,8 +1651,7 @@ light-help-background = #dfe6ee;
   }
 
   .sidebar-toggle.sidebar-open {
-    left: calc(100% - 60px);
-    max-left: 416px;
+    left: min(calc(100% - 60px), 416px);
   }
 }
 
