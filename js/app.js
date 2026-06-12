@@ -1,6 +1,6 @@
 /**
  * UI wiring: editor, buttons, sliders, examples list, SVG export
- * selection and URL sharing. This replaces the Vue components of the
+ * and URL sharing. This replaces the Vue components of the
  * original app (App.vue + CodeEditor.vue).
  */
 'use strict';
@@ -179,7 +179,7 @@
   });
 
   onClick('save-svg', () => {
-    openSelectionOverlay();
+    scene.saveToSVG('l-system.svg', getViewportViewBox());
   });
 
   function onClick(id, handler) {
@@ -258,121 +258,15 @@
     scene.setRotation(deg);
   });
 
-  // --- SVG export selection ---------------------------------------------------------
-
-  const overlay = document.getElementById('selection-overlay');
-  const mask = document.getElementById('selection-mask');
-  const selectionRect = { left: 100, top: 100, width: 400, height: 400 };
-  let dragState = null; // {mode: 'drag'|'resize', handle, startX, startY, rect}
-
-  function openSelectionOverlay() {
-    selectionRect.left = window.innerWidth / 2 - 200;
-    selectionRect.top = window.innerHeight / 2 - 200;
-    selectionRect.width = 400;
-    selectionRect.height = 400;
-    positionMask();
-    overlay.hidden = false;
-  }
-
-  function positionMask() {
-    mask.style.left = selectionRect.left + 'px';
-    mask.style.top = selectionRect.top + 'px';
-    mask.style.width = selectionRect.width + 'px';
-    mask.style.height = selectionRect.height + 'px';
-  }
-
-  mask.addEventListener('mousedown', e => {
-    if (e.target.classList.contains('resize-handle')) return;
-    dragState = {
-      mode: 'drag',
-      startX: e.clientX - selectionRect.left,
-      startY: e.clientY - selectionRect.top,
-    };
-    e.preventDefault();
-  });
-
-  mask.querySelectorAll('.resize-handle').forEach(handleEl => {
-    handleEl.addEventListener('mousedown', e => {
-      dragState = {
-        mode: 'resize',
-        handle: handleEl.dataset.handle,
-        startX: e.clientX,
-        startY: e.clientY,
-        rect: Object.assign({}, selectionRect),
-      };
-      e.stopPropagation();
-      e.preventDefault();
-    });
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragState) return;
-    if (dragState.mode === 'drag') {
-      selectionRect.left = e.clientX - dragState.startX;
-      selectionRect.top = e.clientY - dragState.startY;
-    } else {
-      resizeSelection(e.clientX, e.clientY);
-    }
-    positionMask();
-  });
-
-  document.addEventListener('mouseup', () => {
-    dragState = null;
-  });
-
-  function resizeSelection(clientX, clientY) {
-    const MIN = 50;
-    const startRect = dragState.rect;
-    const handle = dragState.handle;
-    let dx = clientX - dragState.startX;
-    let dy = clientY - dragState.startY;
-
-    // Clamp dx/dy so handles that move both edge and size don't drift
-    // past the minimum dimension.
-    if (handle === 'nw' || handle === 'sw' || handle === 'w') {
-      dx = Math.min(dx, startRect.width - MIN);
-    }
-    if (handle === 'nw' || handle === 'ne' || handle === 'n') {
-      dy = Math.min(dy, startRect.height - MIN);
-    }
-    if (handle === 'ne' || handle === 'se' || handle === 'e') {
-      dx = Math.max(dx, MIN - startRect.width);
-    }
-    if (handle === 'sw' || handle === 'se' || handle === 's') {
-      dy = Math.max(dy, MIN - startRect.height);
-    }
-
-    if (handle.includes('w')) {
-      selectionRect.left = startRect.left + dx;
-      selectionRect.width = startRect.width - dx;
-    }
-    if (handle.includes('e')) {
-      selectionRect.width = startRect.width + dx;
-    }
-    if (handle.includes('n')) {
-      selectionRect.top = startRect.top + dy;
-      selectionRect.height = startRect.height - dy;
-    }
-    if (handle.includes('s')) {
-      selectionRect.height = startRect.height + dy;
-    }
-  }
-
-  onClick('selection-confirm', () => {
-    overlay.hidden = true;
-    scene.saveToSVG('l-system.svg', getSelectionViewBox());
-  });
-
-  onClick('selection-cancel', () => {
-    overlay.hidden = true;
-  });
+  // --- SVG export ---------------------------------------------------------
 
   /**
-   * Converts the screen-space selection rectangle into a world-space box.
-   * The canvas may be CSS-rotated around its center, so each corner is
-   * rotated back into the un-rotated canvas frame first.
+   * Converts the viewport rectangle into a world-space box, so the export
+   * matches what's on screen. The canvas may be CSS-rotated around its
+   * center, so each corner is rotated back into the un-rotated canvas
+   * frame first.
    */
-  function getSelectionViewBox() {
+  function getViewportViewBox() {
     const rect = canvas.getBoundingClientRect();
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
@@ -389,7 +283,7 @@
       };
     };
 
-    const { left, top, width, height } = selectionRect;
+    const left = 0, top = 0, width = window.innerWidth, height = window.innerHeight;
     const corners = [
       toCanvas(left, top),
       toCanvas(left + width, top),
