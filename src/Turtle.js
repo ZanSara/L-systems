@@ -66,9 +66,12 @@ export default class Turtle {
     if (newColorValue === undefined) {
       throw new Error('setColor() expects color value, got undefined');
     }
-    const rgba = tinycolor(typeof newColorValue === 'number' ? 
-      Object.values(tinycolor.names)[newColorValue] : newColorValue
-    ).toRgb();
+    if (typeof newColorValue === 'number') {
+      // Already packed in RRGGBBAA format.
+      this.color = newColorValue;
+      return;
+    }
+    const rgba = tinycolor(newColorValue).toRgb();
     this.color = (rgba.r << 24) | (rgba.g << 16) | (rgba.b << 8) | (rgba.a * 255 | 0)
   }
 
