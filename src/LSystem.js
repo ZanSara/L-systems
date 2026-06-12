@@ -153,6 +153,8 @@ function coerceTypes(system) {
   if (system.angle !== undefined) system.angle = Number.parseFloat(system.angle);
   if (system.width !== undefined) system.width = Number.parseFloat(system.width);
   if (system.depth !== undefined) system.depth = Number.parseFloat(system.depth);
+  if (system.position !== undefined) system.position = coerceVector(system.position, 'position');
+  if (system.direction !== undefined) system.direction = coerceVector(system.direction, 'direction');
   if (system.color !== undefined) {
     // If color is already a number, it's in RRGGBBAA format - don't convert it
     if (typeof system.color !== 'number') {
@@ -160,4 +162,16 @@ function coerceTypes(system) {
       system.color = (rgba.r << 24) | (rgba.g << 16) | (rgba.b << 8) | (rgba.a * 255 | 0)
     }
   }
+}
+
+function coerceVector(value, name) {
+  if (Array.isArray(value)) return value.map(Number);
+  if (typeof value === 'string') {
+    const parts = value.replace(/[[\]()]/g, '').split(/[,\s]+/).filter(Boolean).map(Number);
+    if (parts.some(n => !Number.isFinite(n))) {
+      throw new Error('`' + name + '` could not be parsed as a numeric vector: ' + value);
+    }
+    return parts;
+  }
+  throw new Error('`' + name + '` must be an array or a string of numbers');
 }
