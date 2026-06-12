@@ -148,7 +148,7 @@ export default function createLScene(canvas) {
   }
 
   function drawSystem(system) {
-    canDrawMore |= system.frame();
+    if (system.frame()) canDrawMore = true;
   }
 
   function stop() {
