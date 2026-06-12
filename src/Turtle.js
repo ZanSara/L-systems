@@ -28,6 +28,7 @@ export default class Turtle {
 
   pop() {
     let state = this.stack.pop();
+    if (!state) return;
     this.color = state.color;
     this.direction = state.direction;
     this.position = state.position;
