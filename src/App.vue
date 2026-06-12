@@ -270,61 +270,29 @@ export default {
       };
       this.showSelectionMask = true;
     },
-    saveSVGVersion(version) {
+    async saveSVGVersion(version) {
       const currentTheme = this.isLightTheme;
-
-      // Convert screen coordinates to world coordinates
       const customViewBox = this.getCustomViewBox();
-
-      if (version === 'light') {
-        if (!this.isLightTheme) {
-          this.scene.setTheme(true);
-          this.codeEditorModel.setCode(this.codeEditorModel.code);
-        }
-        this.scene.saveToSVG('l-system-light.svg', customViewBox);
-        if (!currentTheme) {
-          setTimeout(() => {
-            this.scene.setTheme(false);
-            this.codeEditorModel.setCode(this.codeEditorModel.code);
-          }, 100);
-        }
-      } else if (version === 'dark') {
-        if (this.isLightTheme) {
-          this.scene.setTheme(false);
-          this.codeEditorModel.setCode(this.codeEditorModel.code);
-        }
-        this.scene.saveToSVG('l-system-dark.svg', customViewBox);
-        if (currentTheme) {
-          setTimeout(() => {
-            this.scene.setTheme(true);
-            this.codeEditorModel.setCode(this.codeEditorModel.code);
-          }, 100);
-        }
-      } else if (version === 'both') {
-        // Save dark version
-        if (this.isLightTheme) {
-          this.scene.setTheme(false);
-          this.codeEditorModel.setCode(this.codeEditorModel.code);
-        }
-        this.scene.saveToSVG('l-system-dark.svg', customViewBox);
-
-        // Wait a bit, then save light version
-        setTimeout(() => {
-          this.scene.setTheme(true);
-          this.codeEditorModel.setCode(this.codeEditorModel.code);
-          this.scene.saveToSVG('l-system-light.svg', customViewBox);
-
-          // Restore original theme
-          if (!currentTheme) {
-            setTimeout(() => {
-              this.scene.setTheme(false);
-              this.codeEditorModel.setCode(this.codeEditorModel.code);
-            }, 100);
-          }
-        }, 200);
-      }
-
       this.showSaveModal = false;
+
+      const renderTheme = async (isLight) => {
+        this.scene.setTheme(isLight);
+        this.codeEditorModel.setCode(this.codeEditorModel.code);
+        await this.scene.whenComplete();
+      };
+
+      if (version === 'light' || version === 'dark') {
+        const wantLight = version === 'light';
+        if (this.isLightTheme !== wantLight) await renderTheme(wantLight);
+        this.scene.saveToSVG(`l-system-${version}.svg`, customViewBox);
+        if (currentTheme !== wantLight) await renderTheme(currentTheme);
+      } else if (version === 'both') {
+        if (this.isLightTheme) await renderTheme(false);
+        this.scene.saveToSVG('l-system-dark.svg', customViewBox);
+        await renderTheme(true);
+        this.scene.saveToSVG('l-system-light.svg', customViewBox);
+        if (!currentTheme) await renderTheme(false);
+      }
     },
     getCustomViewBox() {
       // Get the scene object from w-gl

@@ -35,11 +35,22 @@ export default function createLScene(canvas) {
     setSystem,
     saveToSVG,
     isComplete,
+    whenComplete,
     stop,
     setTheme,
     setLineWidth,
     setGridVisible,
     getScene: () => scene,
+  }
+
+  function whenComplete() {
+    return new Promise(resolve => {
+      const check = () => {
+        if (isComplete()) resolve();
+        else requestAnimationFrame(check);
+      };
+      check();
+    });
   }
 
   function saveToSVG(fileName, customViewBox) {
