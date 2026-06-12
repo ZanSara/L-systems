@@ -884,7 +884,11 @@ export default function getCodeModel(scene) {
 
   function randomize() {
     let index;
-    do { index = pickRandomIndex(standardCollection) } while (index === lastPickedIndex);
+    if (standardCollection.length <= 1) {
+      index = 0;
+    } else {
+      do { index = pickRandomIndex(standardCollection) } while (index === lastPickedIndex);
+    }
     lastPickedIndex = index;
     let code = standardCollection[lastPickedIndex];
     setCode(code);
