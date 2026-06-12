@@ -407,11 +407,28 @@ export default {
         this.selectionRect.left = event.clientX - this.dragStartPos.x;
         this.selectionRect.top = event.clientY - this.dragStartPos.y;
       } else if (this.isResizing) {
-        const dx = event.clientX - this.dragStartPos.x;
-        const dy = event.clientY - this.dragStartPos.y;
+        const MIN = 50;
         const startRect = this.dragStartPos.rect;
+        let dx = event.clientX - this.dragStartPos.x;
+        let dy = event.clientY - this.dragStartPos.y;
 
-        switch (this.resizeHandle) {
+        // Clamp dx/dy so handles that move both edge and size don't drift
+        // past the minimum dimension.
+        const h = this.resizeHandle;
+        if (h === 'nw' || h === 'sw' || h === 'w') {
+          dx = Math.min(dx, startRect.width - MIN);
+        }
+        if (h === 'nw' || h === 'ne' || h === 'n') {
+          dy = Math.min(dy, startRect.height - MIN);
+        }
+        if (h === 'ne' || h === 'se' || h === 'e') {
+          dx = Math.max(dx, MIN - startRect.width);
+        }
+        if (h === 'sw' || h === 'se' || h === 's') {
+          dy = Math.max(dy, MIN - startRect.height);
+        }
+
+        switch (h) {
           case 'nw':
             this.selectionRect.left = startRect.left + dx;
             this.selectionRect.top = startRect.top + dy;
@@ -447,10 +464,6 @@ export default {
             this.selectionRect.width = startRect.width + dx;
             break;
         }
-
-        // Ensure minimum size
-        if (this.selectionRect.width < 50) this.selectionRect.width = 50;
-        if (this.selectionRect.height < 50) this.selectionRect.height = 50;
       }
     },
     handleMouseUp() {
