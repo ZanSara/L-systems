@@ -31,7 +31,10 @@ python3 -m http.server   # then visit http://localhost:8000
 - The URL always reflects the current system (`?code=...`), so you can share
   a link to whatever you made.
 - **Pick from Examples** loads a random entry from the album of well-known
-  systems (also browsable in the list at the bottom of the sidebar).
+  systems (also browsable in the list at the bottom of the sidebar). Entries
+  marked with a **duplicate** badge define exactly the same system as an
+  earlier entry; a **variant** badge means the same fractal with different
+  colors, depth or angle. Hover a badge to see which entry it matches.
 - **Random Values** generates a brand new random L-system.
 - **Stop Generation** halts an in-progress drawing.
 - **Save as SVG** lets you drag/resize a selection rectangle over the canvas
@@ -103,17 +106,44 @@ viewer is strictly 2D.
 If the expanded system exceeds 1,000,000 characters, expansion stops and a
 warning is shown; the first million characters are still rendered.
 
+## Adding your own examples
+
+The album lives in `examples.js` — it's a plain-text list wrapped in a single
+JavaScript string, so the app keeps working straight from `file://`. To add
+an example, open the file and append at the end (just before the closing
+backtick):
+
+```
+---
+// My Fractal
+axiom: F
+rules:
+ F => F+F--F+F
+
+depth: 4
+angle: 60
+```
+
+Examples are separated by lines containing only `---`, and the first `// ...`
+comment of each one becomes its display name in the sidebar. Only one rule:
+don't use backticks or `${` inside an example, since they would terminate the
+JavaScript string that wraps the album.
+
+Duplicates are detected automatically when the list is built, so if your new
+entry matches an existing system it gets a badge too.
+
 ## Code layout
 
 | File | Role |
 | --- | --- |
 | `index.html` | page markup: sidebar, controls, canvas, selection overlay |
-| `style.css` | the dark "blueprint" theme |
+| `style.css` | the "blueprint" theme (dark + light) |
+| `examples.js` | **user-editable** album of example systems (plain text in a JS string) |
 | `js/parser.js` | parses the definition language into a settings object |
 | `js/turtle.js` | 3D turtle that emits line segments |
 | `js/lsystem.js` | rule expansion, action compilation, incremental render iterator |
 | `js/scene.js` | Canvas 2D renderer: camera, animation loop, grid, SVG export |
-| `js/examples.js` | the album of example systems |
+| `js/album.js` | splits `examples.js` into the list and flags duplicates |
 | `js/random.js` | random system generator |
 | `js/app.js` | UI wiring, URL state, editor behavior |
 

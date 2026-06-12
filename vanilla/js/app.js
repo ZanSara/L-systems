@@ -130,6 +130,15 @@
     item.className = 'example-item';
     item.textContent = example.name;
     item.dataset.index = example.index;
+    if (example.duplicate) {
+      const kind = example.duplicate.kind;
+      item.classList.add(kind === 'exact' ? 'dup-exact' : 'dup-variant');
+      item.title = (kind === 'exact' ? 'Duplicate of ' : 'Variant of ') + example.duplicate.of;
+      const badge = document.createElement('span');
+      badge.className = 'dup-badge';
+      badge.textContent = kind === 'exact' ? 'duplicate' : 'variant';
+      item.appendChild(badge);
+    }
     item.addEventListener('click', e => {
       e.preventDefault();
       loadExample(example.index);

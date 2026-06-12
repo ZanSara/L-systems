@@ -480,6 +480,10 @@ a.save-button:hover { color: #4db6ac !important; border-color: #4db6ac; }
 .examples-list::-webkit-scrollbar-thumb:hover { background: var(--blueprint-bright); }
 
 .example-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 10px 12px;
   background: rgba(30, 58, 95, 0.3);
   border: 1px solid var(--blueprint-border);
@@ -505,6 +509,51 @@ a.save-button:hover { color: #4db6ac !important; border-color: #4db6ac; }
   color: var(--blueprint-bright) !important;
   font-weight: 600;
   box-shadow: 0 0 10px rgba(58, 123, 213, 0.3);
+}
+
+/* duplicate highlighting */
+
+.dup-badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.example-item.dup-exact {
+  border-left-color: #e8a33d;
+}
+
+.example-item.dup-exact .dup-badge {
+  color: #e8a33d;
+  border-color: rgba(232, 163, 61, 0.6);
+  background: rgba(232, 163, 61, 0.12);
+}
+
+.example-item.dup-variant .dup-badge {
+  color: #7d97b8;
+  border-color: rgba(125, 151, 184, 0.45);
+  background: rgba(125, 151, 184, 0.1);
+}
+
+body.light-theme .example-item.dup-exact {
+  border-left-color: #b45309;
+}
+
+body.light-theme .example-item.dup-exact .dup-badge {
+  color: #b45309;
+  border-color: rgba(180, 83, 9, 0.5);
+  background: rgba(180, 83, 9, 0.08);
+}
+
+body.light-theme .example-item.dup-variant .dup-badge {
+  color: #64748b;
+  border-color: rgba(100, 116, 139, 0.5);
+  background: rgba(100, 116, 139, 0.08);
 }
 
 /* --- SVG export selection overlay --- */
