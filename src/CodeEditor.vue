@@ -1,22 +1,19 @@
 <template>
 <div>
-  <codemirror v-model='model.code' ref='editor' :options="{
-    viewportMargin: Infinity,
-    theme: 'lsystem',
-    mode: 'application/lsystem',
-  }"></codemirror>
+  <div ref='host' class='cm-host'></div>
   <div class='error-container' v-if='model.error'>
     <pre class='error hl'>{{model.error}}</pre>
-  </div> 
+  </div>
 </div>
 </template>
 
 <script>
 import bus from './bus';
-import { codemirror } from 'vue-codemirror-lite';
-var CodeMirror = require('codemirror/lib/codemirror.js')
-require('codemirror/addon/comment/comment.js');
-require('./lmode.js')(CodeMirror)
+import CodeMirror from 'codemirror/lib/codemirror.js';
+import 'codemirror/addon/comment/comment.js';
+import registerLSystemMode from './lmode.js';
+
+registerLSystemMode(CodeMirror);
 
 function toggleComment(cm) {
   cm.toggleComment({
@@ -44,44 +41,55 @@ function updateValueIfNeededBy(delta, cm) {
   let v = Number.parseFloat(token.string);
   let line = cm.getLine(cursor.line);
   if (from.ch > 0) {
-    // minus is not part of the number.
     if (line[from.ch - 1] === '-') {
       v *= -1;
       from.ch -= 1;
     }
   }
 
-  
   v += delta;
   var doc = cm.getDoc();
   doc.replaceRange(String(v), from, end);
-  bus.fire('immediate-update')
+  bus.fire('immediate-update');
 }
-//require('./glslmode')(CodeMirror);
+
 export default {
   name: 'CodeEditor',
   props: ['model'],
-  components: {
-    codemirror
-  },
-
   mounted() {
-    bus.on('settings-collapsed', refreshEditor, this);
-    bus.on('immediate-update', this.setImmediateUpdate, this);
-    this.$refs.editor.editor.setOption('extraKeys', {
-      'Cmd-/': toggleComment,
-      'Ctrl-/': toggleComment,
-      'Shift-Up': handleUp,
-      'Shift-Down': handleDown
+    this.editor = CodeMirror(this.$refs.host, {
+      value: this.model.code || '',
+      viewportMargin: Infinity,
+      theme: 'lsystem',
+      mode: 'application/lsystem',
+      extraKeys: {
+        'Cmd-/': toggleComment,
+        'Ctrl-/': toggleComment,
+        'Shift-Up': handleUp,
+        'Shift-Down': handleDown
+      }
     });
+
+    this.editor.on('change', () => {
+      const value = this.editor.getValue();
+      if (value === this.model.code) return;
+      this.model.code = value;
+    });
+
+    bus.on('settings-collapsed', this.refreshEditor, this);
+    bus.on('immediate-update', this.setImmediateUpdate, this);
   },
 
-  beforeDestroy() {
-    bus.off('settings-collapsed', refreshEditor, this);
+  beforeUnmount() {
+    bus.off('settings-collapsed', this.refreshEditor, this);
     bus.off('immediate-update', this.setImmediateUpdate, this);
   },
+
   watch: {
-    'model.code': function() {
+    'model.code': function(newValue) {
+      if (this.editor && this.editor.getValue() !== newValue) {
+        this.editor.setValue(newValue || '');
+      }
       if (this.model.ignoreNextUpdate) {
         this.model.ignoreNextUpdate = false;
         return;
@@ -93,10 +101,8 @@ export default {
         this.model.setCode(this.model.code);
         this.pendingSetCode = 0;
         return;
-      } 
+      }
 
-      // We don't want to update code on each key stroke. This would have negative
-      // impact on performance.
       this.pendingSetCode = setTimeout(() => {
         this.model.setCode(this.model.code);
         this.pendingSetCode = 0;
@@ -114,15 +120,12 @@ export default {
       if (this.clearImmediate) clearTimeout(this.clearImmediate);
       this.clearImmediate = setTimeout(() => this.isImmediate = false, 30);
       this.isImmediate = true;
+    },
+    refreshEditor(isCollapsed) {
+      if (!isCollapsed && this.editor) {
+        setTimeout(() => this.editor.refresh(), 10);
+      }
     }
-  }
-}
-function refreshEditor(isCollapsed) {
-  // Code mirror sometimes is not visible https://stackoverflow.com/questions/8349571/codemirror-editor-is-not-loading-content-until-clicked
-  if (!isCollapsed) {
-    setTimeout(() => {
-      this.$refs.editor.editor.refresh()
-    }, 10);
   }
 }
 </script>
