@@ -62,10 +62,9 @@ export default class LSystem {
   *renderIterator() {
     for (let op of this.production) {
       if (this.actions[op]) {
-        if (this.stepsPerFrame < 0) {
-          yield* this.actions[op]();
-        } else {
-          yield this.actions[op]();
+        this.actions[op]();
+        if (this.stepsPerFrame >= 0) {
+          yield;
         }
       }
     }
