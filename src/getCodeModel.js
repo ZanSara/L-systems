@@ -113,7 +113,7 @@ rules:
 
 color:brown
 direction: [0, 1, 0]
-angle: 22.5a
+angle: 22.5
 actions:
   c => setColor('green')
   d => setColor('lightgreen')`,
